@@ -1,0 +1,149 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../l2t-paper-slider/l2t-paper-slider.html">
+<link rel="import" href="../../things-i18n-msg/things-i18n-msg.html">
+
+<link rel="import" href="./things-fields-constructor-behavior.html">
+
+
+<dom-module id="things-field-pages">
+  <style>
+    .dropdown-content {
+      background-color: white;
+    }
+    label{
+      @apply(--things-label);
+    }
+    input{
+      @apply(--things-input);
+    }
+    .input-size{
+      width:calc(65% - 37px);
+    }
+    iron-icon{
+      @apply(--things-picker-button);
+      background:url(/images/icon-resource-select.png) 50% -46px no-repeat var(--paper-blue-grey-300);
+    }
+    iron-dropdown{
+      margin:30px 0 0 9%;
+      border:2px solid rgba(0,0,0,.2);
+      text-align:center;
+    }
+    iron-dropdown:before{
+      @apply(--things-dropdown-arrow);
+    }
+    paper-item{
+      @apply(--things-dropdown-item);
+    }
+    paper-item span{
+      opacity:.6;
+      font-size:12px;
+    }
+
+  </style>
+
+  <template>
+    <things-i18n-msg
+        auto
+        msgid="text.invalid_input"
+        msg="{{errorMessage}}"
+        hidden>
+        Invalid Input
+    </things-i18n-msg>
+
+    <!-- <paper-carousel 
+      id="pages"
+      items="1" 
+      controls="true" 
+      dots="true" 
+      dotText="false" 
+      loop="true" 
+      autoplay="false">
+    </paper-carousel> -->
+    <l2t-paper-slider 
+      id="pages"
+      total-slides="[[pages]]">
+    </l2t-paper-slider>
+  </template>
+
+  <script type="text/javascript">
+    Polymer({
+      is: 'things-field-pages',
+
+      behaviors: [
+        Things.FieldsConstructorBehavior
+      ],
+
+      properties: {
+        /**
+         * element name, Form 안에 들어가는 경우 Ajax 요청시 name : value 형식으로 서버에 요청된다.
+         * ********
+         * @type: String
+         */
+        fields: {
+          type: Array
+        },
+
+        pages: {
+          type: Number,
+          value: 0
+        },
+
+        /**
+         * 페이지 당 레코드 수
+         * ********
+         * @type: Number
+         */
+        limit: {
+          type: Number,
+          value: 4
+        },
+
+        selectedPage: {
+          type: Number,
+          value: 0
+        },
+
+        maxIndex: {
+          type: Number,
+          value: 0
+        },
+
+        trackingStartPoint: {
+          type: Object
+        }
+      },
+
+      observers: [
+        'reconfigPage(fields)'
+      ],
+
+      /**
+       * 검색 폼 화면을 구성. formFields 정보로 동적으로 폼 하위 엘리먼트를 생성하여 폼을 구성한다.
+       * *******
+       */
+      reconfigPage: function(fields) {
+        if(!fields || fields.length <= 0)
+          return;
+
+        var elPages = this.$.pages;
+
+        var limit = this.limit;
+        this.pages = Math.floor(fields.length/limit) + (fields.length%limit > 0 ? 1 : 0);
+        for(var i = 0; i < this.pages; i++) {
+          var pageDiv = document.createElement('paper-slide');
+          // pageDiv.setAttribute('class', 'flex layout vertical');
+          pageDiv.setAttribute('id', 'page' + i);
+          Polymer.dom(elPages).appendChild(pageDiv);
+
+          if ((i+1)*limit > fields.length) {
+            this.reconfigContainer(pageDiv, fields.slice(i*limit));
+          } else {
+            this.reconfigContainer(pageDiv, fields.slice(i*limit, (i+1)*limit));
+          }
+        }
+      }
+    });
+  </script>
+</dom-module>

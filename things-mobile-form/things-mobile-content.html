@@ -1,0 +1,77 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../things-ajax/things-ajax.html">
+<link rel="import" href="../../things-content/things-menu-content-behavior.html">
+
+<link rel="import" href="../things-mobile-form/things-mobile-search-form.html">
+<link rel="import" href="../things-mobile-list/things-mobile-list.html">
+
+
+
+<dom-module id="things-mobile-content">
+	<template>
+		<style>
+			:host {
+				display: block;
+				@apply(--layout-vertical);
+				@apply(--layout-flex);
+			}
+
+			things-resource-grid {
+				@apply(--layout-flex);
+			}
+
+			things-mobile-list {
+				@apply(--layout-flex);
+			}
+		</style>
+
+		<things-ajax
+			auto
+			id="menu-meta"
+			method="GET"
+			resource-url="[[menuMetaUrl]]"
+			last-response="{{metaData}}">
+		</things-ajax>
+
+		<things-mobile-search-form
+			id="search-form"
+			form-fields="[[searchFormFields]]"
+			select-fields="[[selectFields]]"
+			sort-fields="[[sortFields]]"
+			action-url="[[menuInfo.resource_url]]"
+			page="{{page}}"
+			limit="[[limit]]"
+			last-response="{{lastResponse}}">
+		</things-mobile-search-form>
+
+		<things-mobile-list
+			id="list"
+			limit="{{limit}}"
+			meta-data="[[metaData]]"
+			items="[[items]]"
+			class="flex">
+		</things-mobile-list>
+
+	</template>
+
+	<script>
+		Polymer({
+			is: 'things-mobile-content',
+
+			behaviors: [
+				Things.MenuContentBehavior
+			],
+
+			properties: {
+		        items: {
+		          type: Array
+		        }
+			},
+
+			listeners: {
+
+			}
+		});
+	</script>
+</dom-module>

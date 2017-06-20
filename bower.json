@@ -1,0 +1,17 @@
+{
+  "name": "things-mobile-elements",
+  "homepage": "https://github.com/ThingsElements/things-mobile-elements",
+  "authors": [
+    "hatio lab"
+  ],
+  "description": "Things mobile elements",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

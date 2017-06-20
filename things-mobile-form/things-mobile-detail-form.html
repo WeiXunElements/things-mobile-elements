@@ -1,0 +1,363 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../paper-material/paper-material.html">
+<link rel="import" href="../../paper-fab/paper-fab.html">
+
+<link rel="import" href="../things-mobile-resource-selector/things-mobile-resource-selector.html">
+<link rel="import" href="../things-mobile-list/things-mobile-list.html">
+<link rel="import" href="./things-meta-elements-behavior.html">
+
+
+<dom-module id="things-mobile-detail-form">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      form {
+        @apply(--things-default-padding);
+        padding-bottom:5px;
+
+      }
+      paper-fab {
+        @apply(--things-search-fab);
+      }
+    </style>
+
+    <!-- http://xmes.pointhing.xyz/rest/menu_details/80/meta -->
+
+    <things-ajax
+      id="menumeta-ajax"
+      method="GET"
+      resource-url="[[detailMenuMetaUrl]]"
+      on-response="{{detailMenuMeta}}">
+    </things-ajax>
+
+    <template is="dom-if" if="[[canSave]]">
+      <paper-fab label="SAVE" title="save" save-url="[[saveUrl]]" on-tap="_onSubmitFormTap"></paper-fab>
+    </template>
+    <paper-material elevation="0" class="layout vertical flex">
+      <form is="iron-form"
+        id="fields"
+        action="[[action]]"
+        content-type="[[contentType]]"
+        last-response ="{{lastResponse}}"
+        with-credentials="[[withCredentials]]">
+      </form>
+      <things-mobile-list
+        limit="{{limit}}"
+        items="[[items]]"
+        class="flex">
+      </things-mobile-list>
+    </paper-material>
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'things-mobile-detail-form',
+
+      properties: {
+        title: {
+          type: String
+        },
+
+        dataRoute: {
+          type: String
+        },
+
+        canSave: {
+          type: Boolean
+        },
+
+        saveUrl: {
+          type: String
+        },
+
+        formFields: {
+          type: Array,
+          observer: '_formFieldsChanged'
+        },
+
+        values: {
+          type: Object,
+          observer: '_valuesChanged'
+        },
+
+        // // @: Things.DetailFormBehavior
+        // resourceUrl: {
+        //   type: String
+        // },
+
+        // // @: Things.DetailFormBehavior
+        // resourceId: {
+        //   type: String
+        // },
+
+        detailMenuMetaUrl: {
+          type: String,
+          computed: 'computeDetailMenuMeta(menuId)'
+        },
+
+        detailMenuMeta: {
+          type: Object,
+          observer: '_detailMenuMetaChanged'
+        }
+      },
+
+      listeners : {
+        'iron-form-presubmit' :'handleBeforeSubmit',
+        'iron-form-response' :'_successResponseHandler',
+        'iron-form-error' : '_errorResponseHandler',
+        'things-form-configure' : '_formConfigure'
+      },
+
+      behaviors: [
+        Things.MetaElementsBehavior,
+        Things.MenuContentBehavior,
+        Things.FormBehavior,
+        Things.SpinnerBehavior,
+        Things.MsgBoxBehavior
+      ],
+
+      /**
+       * 리소스 폼이 이미 구성되었는지 여부
+       * ******
+       */
+      isFormConfigured: function() {
+        return this.$.fields.childNodes.length > 100;
+      },
+
+      /**
+       * 모든 Form Element를 리턴
+       * *******
+       */
+      getFormElements: function() {
+        var formElements = [];
+        return this.$.fields.childNodes;
+      },
+
+      /**
+       * @override FormBehavior
+       * formFields 정보로 동적으로 폼 하위 엘리먼트를 생성하여 폼을 구성한다.
+       * *******
+       */
+      reconfigureMyForm: function() {
+        console.log('finish reconfigureMyForm');
+      },
+
+      _formConfigure: function(event) {
+        if(!this.formFields || this.formFields.length <= 0 || this.isFormConfigured())
+          return;
+
+        var form = this.$.fields;
+        this.reconfigContainer(form, this.formFields);
+
+        this.setFormData(this.values);
+      },
+
+      /**
+       * @override
+       * [reconfigContainer description]
+       * @param  {[type]} container  [description]
+       * @param  {[type]} fieldMetas [description]
+       * @return {[type]}            [description]
+       */
+      reconfigContainer: function(container, fieldMetas) {
+        if (!container) {
+          return;
+        }
+
+        fieldMetas = fieldMetas || this.formFields;
+
+        if(!fieldMetas || fieldMetas.length <= 0) {
+          return;
+        }
+
+        // console.log(this.fieldMetas);
+
+        for(var index in fieldMetas) {
+          var meta = fieldMetas[index];
+          if (meta.type == 'hidden' || meta.grid_rank === 0 || meta.grid_width === 0) {
+            continue;
+          }
+
+          if (!meta.grid_editor) {
+            continue;
+          }
+
+          if(!meta.grid_rank || meta.grid_rank <= 0) {
+            continue;
+          }
+
+          var newElement = this._createElement(meta);
+          if (!meta.grid_editor || meta.grid_editor === 'hidden') {
+            newElement.setAttribute('hidden', true);
+          } else if (meta.ignore_on_save || meta.form_editor === 'readonly' || meta.grid_editor === 'readonly' || !this.canSave) {
+            newElement.setAttribute('readonly', true);
+          }
+
+          if(newElement) {
+            container.appendChild(newElement);
+          }
+        }
+
+        return container;
+      },
+
+      computeDetailMenuMeta: function(menuId) {
+        return 'menu_details/' + menuId + '/meta';
+      },
+
+      _detailMenuMetaChanged: function(detailMenuMeta) {
+        // TODO
+        console.log(detailMenuMeta);
+      },
+
+      _valuesChanged: function(values) {
+        this.setFormData(values);
+      },
+
+      /**
+       * Resource로 해당 Form elements에 각각 바인딩한다.
+       *********
+       * @override Things.FormBehavior
+       * @param {Object} resource
+       */
+      setFormData: function(values) {
+        var elements = this.getFormElements();
+        for(var i = 0 ; i < elements.length ; i++) {
+          var element = elements[i];
+          var elName = element.name;
+
+          var value = values ? values[elName] : null;
+
+          if(elName && element.localName == 'things-mobile-resource-selector') {
+            var idIndex = elName.indexOf('id');
+            if (idIndex >= 0) {
+              var objName = elName.slice(0, idIndex-1);
+              value = values ? values[objName] : null;
+              
+              element.objValue = value;
+            } else if (element.resourceType === 'CODE' && element.codeName) {
+              if (element.items) {
+                element.setCodeValue(value);
+              } else {
+                element.value = value;
+              }
+            }
+
+            continue;
+          // } else if (element.localName.indexOf('number') >= 0) {
+          } else if(element.localName == 'things-stamp') {
+            element.values = values;
+          } else if (elName && elName.indexOf('qty') >= 0) {
+            value = 0;
+          }
+
+          element.value = value;
+        }
+      },
+
+      /**
+       * Submit Form. 검색 실행
+       * *******
+       */
+      submitMyForm: function() {
+        
+      },
+
+      /**
+       * 조회 버튼 클릭시 current page를 1로 리셋
+       *
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      _onSubmitFormTap: function(e) {
+        this.submitMyForm();
+      },
+
+      /**
+       * @override Things.MenuContentBehavior
+       */
+      _handlerRouteChange: function(event) {
+        if(!event.detail || !event.detail.initialParams) {
+          return;
+        }
+
+        var initParams = event.detail.initialParams;
+
+        this.values = initParams.values;
+        // this.id = this.values.id;
+        this.gridEditorOnly = initParams.gridEditorOnly;
+        var metaData = initParams.metaData;
+
+        if (metaData) {
+          var menuMeta = metaData.menu;
+          this.menuId = menuMeta.id;
+
+          this.$['menumeta-ajax'].generateRequest();
+
+          this.detailFormId = menuMeta.detail_form_id;
+          this.saveUrl = menuMeta.grid_save_url;
+          this.canSave = this.saveUrl ? true : false;
+
+          this.formFields = metaData.columns;  // FIXME
+          this.resourceUrl = menuMeta.resource_url;
+        }
+      },
+
+      /**
+       * en-us
+       *
+       * Successful response handler After form submits.
+       * this fires a 'things-form-submit-success' in this function
+       ******
+       *
+       * ko-kr
+       *
+       * form submit후 성공적인 응답 핸들러. 이 함수에서 'things-form-submit-success'를 발생.
+       ******
+       * @param {Object} event Successful response event
+       */
+      _successResponseHandler: function(event) {
+        this.stopSpinner();
+        this.lastResponse = event.detail.xhr.response;
+        this.handleSuccessResponse(this.lastResponse);
+      },
+
+      /**
+       * en-us
+       *
+       * Error response handler After form submits.
+       * this fires a 'things-form-submit-error' in this function
+       ******
+       *
+       * ko-kr
+       *
+       * 오류 응답 핸들러 form이 submit된 후, 이 함수에 'things-form-submit-error'를 발생.
+       *
+       * @param {Object} event Error response event
+       */
+      _errorResponseHandler: function(event) {
+        this.stopSpinner();
+
+        var response = event.detail.request.xhr.response;
+        if(response && response.status == 401) {
+          this.handleUnauthorized();
+
+        } else {
+          if(response) {
+            this.openResponseError(response);
+          } else {
+            response = event.detail.request;
+            this.openUnkownError(response);
+          }
+        }
+
+        this.handleErrorResponse(response);
+      }
+    });
+  </script>
+</dom-module>

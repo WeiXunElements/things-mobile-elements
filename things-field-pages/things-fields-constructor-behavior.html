@@ -1,0 +1,59 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../things-mobile-form/things-meta-elements-behavior.html">
+
+<script>
+
+window.Things = window.Things || {};
+
+/**
+ *
+ * @polymerBehavior Things.FieldsConstructorBehaviorImpl
+ */
+Things.FieldsConstructorBehaviorImpl = {
+
+	properties: {
+		fieldMetas: {
+			type: String
+		}
+	},
+
+	reconfigContainer: function(container, fieldMetas) {
+		if (!container) {
+	    	return;
+	    }
+
+	    this.fieldMetas = fieldMetas || this.fieldMetas;
+
+	    if(!this.fieldMetas) {
+	    	return;
+	    }
+
+	    for(index in this.fieldMetas) {
+			var meta = this.fieldMetas[index];
+			if (meta.type == 'hidden' || meta.width === 0) {
+				continue;
+			}
+
+			var newElement = this._createElement(meta);
+			if (meta.form_editor === 'hidden') {
+				newElement.setAttribute('hidden', true);
+			} else if (meta.ignore_on_save || meta.form_editor === 'readonly' || meta.grid_editor === 'readonly') {
+				newElement.setAttribute('readonly', true);
+			}
+
+			if(newElement) {
+				container.appendChild(newElement);
+			}
+	    }
+
+	    return container;
+	}
+};
+
+Things.FieldsConstructorBehavior = [
+	Things.FieldsConstructorBehaviorImpl,
+	Things.MetaElementsBehavior
+];
+
+</script>

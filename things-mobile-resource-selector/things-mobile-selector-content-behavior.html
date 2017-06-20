@@ -1,0 +1,82 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+
+<script>
+
+window.Things = window.Things || {};
+
+Things.MobileSelectorContentBehaviorImpl = {
+	properties: {
+		searchFormFields: {
+			type: Array,
+			value: [{
+				label: 'name',	// FIXME
+				name: 'name',
+				op: 'contains',
+				type: 'text'
+			}, {
+				label: 'description',	// FIXME
+				name: 'description',
+				op: 'contains',
+				type: 'text'
+			}]
+		},
+
+		gridModel: {
+			type: Array,
+			value: [{
+				fieldName: 'id'
+			}, {
+				fieldName: 'name'
+			}, {
+				fieldName: 'description'
+			}]
+		},
+
+		gridColumns: {
+			type: Array,
+			value: [{
+				fieldName: 'id',
+				name: 'id',
+				width: 0,
+				header: {
+					text: 'ID'
+				}
+			}, {
+				fieldName: 'name',
+				name: 'name',
+				width: 80,
+				header: {
+					text: 'name'
+				}
+			}, {
+				fieldName: 'description',
+				name: 'description',
+				width: 150,
+				header: {
+					text: 'description'
+				}
+			}]
+		},
+
+		gridConfig: {
+			type: Object,
+			value: {
+				checkBar: false,
+				edit: {
+	                editable: false
+	            }
+			}
+		}
+	},
+
+	parseMetaData: function(metaData) {
+
+	}
+};
+
+Things.MobileSelectorContentBehavior = [
+	Things.MobileSelectorContentBehaviorImpl
+];
+
+</script>

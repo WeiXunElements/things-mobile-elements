@@ -1,0 +1,500 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<link rel="import" href="../../iron-input/iron-input.html">
+<link rel="import" href="../../iron-icon/iron-icon.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../things-ajax/things-ajax.html">
+
+<link rel="import" href="./things-mobile-resource-selector-behavior.html">
+
+<!--
+Resource Selector. 서버에 저장되어 있는 리소스 정보를 조회하여 사용자가 리스트에서 선택할 수 있도록 표시하는 컴포넌트
+
+  Example:
+
+    <things-resource-selector
+      id="resource-selector"
+      label="Language"
+      name="user_id"
+      resource-type="User"
+      resource-url="users"
+      delegate-column="name">
+    </things-resource-selector>
+
+@demo demo/demo-resource-selector.html
+-->
+
+<dom-module id="things-mobile-resource-selector">
+  <style>
+    label{
+      @apply(--things-label);
+    }
+    input{
+      @apply(--things-input);
+      width:calc(65% - 37px);
+    }
+    paper-icon-button{
+      @apply(--things-small-icon);
+      margin-right:7px;margin-left:-27px;
+      opacity:.4;
+      position:relative;
+      top:-2px;
+    }
+    iron-icon{
+      @apply(--things-picker-button);
+      background:url(/images/icon-resource-select.png) 50% 3px no-repeat var(--paper-blue-grey-300);
+    }
+  </style>
+
+  <template>
+    <input is="iron-input" name="[[name]]" bind-value="{{value}}" hidden>
+
+    <label>[[label]]</label>
+
+    <input is="iron-input"
+            bind-value="{{display}}"
+            readonly
+            tabindex="[[tabIndex]]"
+            id="input"
+            on-tap="openResourceSelector"
+            error-message$="[[errorMessage]]"
+            auto-validate$="[[autoValidate]]"
+            required$="[[required]]"></input>
+
+    <paper-icon-button suffix on-tap="clearValue" icon="clear" alt="clear" title="clear" hidden="[[hideClearButton]]">
+    </paper-icon-button>
+
+    <iron-icon prefix on-tap="openResourceSelector"></iron-icon>
+
+    <things-ajax
+      id="resource-content"
+      page="[[page]]"
+      limit="[[limit]]"
+      resource-url="[[resourceUrl]]"
+      resource-action="show_by_name"
+      params="[[initialParams]]"
+      last-response="{{lastResponse}}">
+    </things-ajax>
+  </template>
+
+  <script type="text/javascript">
+    Polymer({
+      is: "things-mobile-resource-selector",
+
+      properties: {
+        /**
+         * element name, Form 안에 들어가는 경우 Ajax 요청시 name : value 형식으로 서버에 요청된다.
+         * ******
+         * @type {String}
+         */
+        name : {
+          type: String
+        },
+
+        /**
+         * Resource Object Value
+         * ******
+         * @type {Object}
+         */
+        objValue: {
+          type: Object,
+          notify: true,
+          observer: '_objValueChanged'
+        },
+
+        /**
+         * element에 표시할 라벨
+         * *******
+         * @type {String}
+         */
+        label: {
+          type: String
+        },
+
+        /**
+         * Resource Selector로 부터 선택한 값 - id값
+         * ******
+         * @type {String}
+         */
+        value: {
+          type: String,
+          notify: true
+        },
+
+        /**
+         * Resource Selector로 부터 선택한 표시 값
+         * *******
+         * @type {String}
+         */
+        display: {
+          type: String,
+          notify: true
+        },
+
+        /**
+        * Resource Type - Entity or Menu
+        * 1) Entity : Entity 설정에 의한 Selector 화면 구성
+        * 2) Menu : Menu 설정에 의한 Selector 화면 구성
+        * *******
+        * @type {String}
+        */
+        resourceType: {
+          type: String,
+          value: 'Entity'
+        },
+
+        /**
+         * Resource Selector에서 표시할 리소스 명
+         * resourceType이 Menu로 선택되어 있다면 Menu 명, resourceType이 Entity로 선택되어 있다면 Entity 명이 된다.
+         * ******
+         * @type {String}
+         */
+        resourceName: {
+          type: String
+        },
+
+        codeName: {
+          type: String,
+          observer: '_codeNameChanged'
+        },
+
+        /**
+         * Resource Selector를 띄우기 위해 필요한 기본 파라미터
+         * Format : {Parameter Name1}:{Parameter Value1},{Parameter Name2}:{Parameter Value2},...
+         * ******
+         * @type {String}
+         */
+        initialParams: {
+          type: String
+        },
+
+        /**
+         * Resource Selector에서 선택한 리소스와 Owner Data간 바인딩하기 위한 정보
+         * ********
+         * @type {String}
+         */
+        bindFields: {
+          type: String
+        },
+
+        /**
+         * Resource Selector에서 선택한 resource의 id field
+         * Resource Selector에서 선택한 resource의 id값이 이 필드가 가지는 실제 값이 된다.
+         * Resource Selector에서 자동으로 설정하므로 외부에서는 설정하지 않는다.
+         * ******
+         * @type {String}
+         */
+        resourceIdField: {
+          type: String,
+          computed: 'computeResIdField(resourceType)'
+        },
+
+        itemsProp: {
+          type: String,
+          value: 'items'
+        },
+
+        /**
+         * Resource Selector에서 선택한 resource의 title field
+         * 화면에 표시할 대표 컬럼명.
+         * Resource Selector에서 자동으로 설정하므로 외부에서는 설정하지 않는다.
+         * *******
+         * @type {Stirng}
+         */
+        resourceTitleField: {
+          type: String,
+          computed: 'computeTitleField(resourceType)'
+        },
+
+        /**
+         * 조회 결과
+         * ******
+         * @type {Object}
+         */
+        lastResponse: {
+          type: Object,
+          observer: '_responseChanged'
+        },
+
+        /**
+         * input field에 반드시 값이 포함되어야 함을 결정 합니다.
+         * *******
+         * @type {Boolean}
+         */
+        required: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * 자동 validation check 활성화 여부
+         * *******
+         * @type {Boolean}
+         */
+        autoValidate: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * validate 함수를 통해 return 되는 값으로 초기화 하는 변수
+         * *******
+         * @type {Boolean}
+         */
+        isValid: {
+          type: Boolean,
+          value: true
+        },
+
+        /**
+         * clear 버튼을 숨기기 여부에 대한 변수
+         * *******
+         * @type {Boolean}
+         */
+        hideClearButton: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Resource Selector에서 레코드 선택시 확인 창을 띄울 지 여부
+         * *******
+         * @type {Boolean}
+         */
+        confirmOnSelect: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * validation check를 통해 isValid의 값이 false일때 화면에 나타나는 errorMessage
+         * ******
+         * @type {String}
+         */
+        errorMessage: {
+          type: String,
+          value: 'Invalid input'
+        }
+
+        /**
+         * related-field에 따라 정보를 파싱하여 form sierialize된 데이터로 설정하기 전에 발생하는 이벤트
+         *********
+         * @event things-'[[inputFieldName]]'-related-field-configured
+         * @param value sierialize된 Object
+         */
+      },
+
+      behaviors: [
+        Things.MsgBoxBehavior,
+        Things.MobileResourceSelectorBehavior
+      ],
+
+      computeResIdField: function(resourceType) {
+        if (resourceType.toUpperCase() === 'ENTITY') {
+          return 'id';
+        } else {
+          return 'name';
+        }
+      },
+
+      computeTitleField: function(resourceType) {
+        if (resourceType.toUpperCase() === 'ENTITY') {
+          return 'name';
+        } else {
+          return 'description';
+        }
+      },
+
+      /**
+       * Object 값이 변경된 이 후
+       **********
+       * @param {Object} objValue 선택된 값
+       */
+      _objValueChanged: function(objValue) {
+        if(objValue) {
+          this.value = objValue[this.resourceIdField];
+          this.display = objValue[this.resourceTitleField];
+        } else {
+          this.value = null;
+          this.display = '';
+        }
+
+        this.validate();
+      },
+
+      /**
+       * Resource Selector로 related_field(참조필드)의 값을 form serialize된 오브젝트에 넣어서 받아 온다.
+       ********
+       * @param {String} value
+       */
+      setParentFormData: function(value) {
+        var evtName = 'things-' + this.name + '-related-field-configured';
+        var evt = this.fire(evtName, value, { cancelable: true });
+
+        if (!evt.defaultPrevented) {
+          var parentForm = this.$['id-value-field'].form;
+          var resourceForm = parentForm ? parentForm.parentNode : {};
+
+          if(resourceForm.localName == 'things-form' || resourceForm.localName == 'things-resource-form') {
+            parentForm.form.parentNode.setFormData(value);
+          }
+        }
+      },
+
+      /**
+       * 조회 데이터 변경시
+       *********
+       * @param {Object} lastResponse
+       */
+      _responseChanged: function(lastResponse) {
+        if (!lastResponse) {
+          return;
+        }
+
+        this.items = lastResponse[this.itemsProp] ? lastResponse[this.itemsProp] : lastResponse;
+        this.itemCount = lastResponse[this.totalProp] ? lastResponse[this.totalProp] : this.items.length;
+
+        this.setCodeValue(this.value);
+      },
+
+      setCodeValue: function(value) {
+        if (!value || this.resourceType !== 'CODE') {
+          return;
+        }
+
+        for (var idx in this.items) {
+          var item = this.items[idx];
+          if (value === item.name) {
+            this.objValue = item;
+            break;
+          }
+        }
+      },
+
+
+      /**
+       * Resource Selector로 부터 id, display, objValue 값을 설정한다.
+       ********
+       * @param {String} idValue id 값
+       * @param {String} displayValue 표시를 위한 display 값
+       * @param {Object} objValue 선택된 resource object 값
+       */
+      setResourceValue: function(idValue, displayValue, objValue) {
+        if(this.confirmOnSelect) {
+          setTimeout(function() {
+            this._confirmAndSetResourceValue(idValue, displayValue, objValue);
+          }.bind(this), 500);
+        } else {
+          this.setValues(idValue, displayValue, objValue);
+        }
+      },
+
+      /**
+       * 확인 메시지 박스를 띄우면서 Resource Selector로 부터 id, display, objValue 값을 설정
+       ********
+       * @param {String} idValue  id 값
+       * @param {String} displayValue 표시를 위한 display 값
+       * @param {Object} objValue 선택된 resource object 값
+       */
+      _confirmAndSetResourceValue: function(idValue, displayValue, objValue) {
+        this.openConfirmMsg({
+          type : 'info',
+          title : Things.DataGlobal.t('tooltip.select'),
+          text : '[' + displayValue + '] ' + Things.DataGlobal.t('text.Sure to X', { x : Things.DataGlobal.t('button.select') }),
+          showCancelButton: true,
+          closeOnCancel: true,
+          allowEscapeKey: false,
+          allowOutsideClick: false
+        }, function() {
+          this.setValues(idValue, displayValue, objValue);
+        }.bind(this));
+      },
+
+      /**
+       * id, display, objValue 값을 설정
+       ********
+       * @param {String} idValue  id 값
+       * @param {String} displayValue 표시를 위한 display 값
+       * @param {Object} objValue 선택된 resource object 값
+       */
+      setValues: function(idValue, displayValue, objValue) {
+        this.value = idValue;
+        this.display = displayValue;
+        this.setObjValue(objValue);
+      },
+
+      /**
+       * Object Value를 리턴한다.
+       * *******
+       * @return {Object} 리소스 셀렉터에서 선택한 레코드 (Object) 값
+       */
+      getObjValue: function() {
+        return this.objValue;
+      },
+
+      /**
+       * Object Value를 설정한다.
+       ********
+       * @param {Object} objValue
+       */
+      setObjValue: function(objValue) {
+        this.objValue = objValue;
+      },
+
+      /**
+       * Open Resource Selector
+       * *******
+       */
+      openResourceSelector: function() {
+        var form = this.findOwnerForm(this);
+        this.openResourceSelectorByForm(this, true, form);
+      },
+
+      /**
+       * Resource Selector의 Container 폼을 찾아 리턴
+       * *******
+       * @param {Object} element
+       */
+      findOwnerForm: function(element) {
+        if(!element.parentElement) {
+          return null;
+        } else {
+          if(element.parentElement.localName == 'form' ||
+             element.parentElement.localName == 'things-form' ||
+             element.parentElement.localName == 'things-search-form') {
+            return element.parentElement;
+          } else {
+            return this.findOwnerForm(element.parentElement);
+          }
+        }
+      },
+
+      _codeNameChanged: function(codeName) {
+        if (!codeName) return;
+
+        this.initialParams = { name: codeName };
+        this.resourceUrl = 'common_codes/show_by_name';
+        this.$['resource-content'].generateRequest();
+      },
+
+      /**
+       * 값을 리셋
+       * *******
+       */
+      clearValue: function() {
+        var obj = {};
+        obj[this.resourceIdField] = null;
+        obj[this.resourceTitleField] = null;
+        this.objValue = obj;
+      },
+
+      /**
+       * 수동 validation check function
+       * ********
+       */
+      validate: function() {
+        this.isValid = this.$.input.validate();
+      }
+    });
+  </script>
+</dom-module>
