@@ -225,6 +225,10 @@
       },
 
       _detailMenuMetaChanged: function(detailMenuMeta) {
+        if (!detailMenuMeta || detailMenuMeta.length === 0) {
+          return;
+        }
+
         var searchUrl = detailMenuMeta[0].search_url;
         var currentPath = window.location.hash;
 
