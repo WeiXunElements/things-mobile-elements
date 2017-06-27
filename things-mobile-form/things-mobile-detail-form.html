@@ -5,7 +5,7 @@
 
 <link rel="import" href="../things-mobile-resource-selector/things-mobile-resource-selector.html">
 <link rel="import" href="../things-mobile-list/things-mobile-list.html">
-<link rel="import" href="./things-meta-elements-behavior.html">
+<link rel="import" href="./things-elements-meta-behavior.html">
 
 
 <dom-module id="things-mobile-detail-form">
@@ -31,7 +31,14 @@
       id="menumeta-ajax"
       method="GET"
       resource-url="[[detailMenuMetaUrl]]"
-      on-response="{{detailMenuMeta}}">
+      last-response="{{detailMenuMeta}}">
+    </things-ajax>
+
+    <things-ajax
+      id="detail-info-ajax"
+      method="GET"
+      resource-url="[[searchDetailUrl]]"
+      last-response="{{detailInfo}}">
     </things-ajax>
 
     <template is="dom-if" if="[[canSave]]">
@@ -48,7 +55,8 @@
       <things-mobile-list
         limit="{{limit}}"
         items="[[items]]"
-        class="flex">
+        class="flex"
+        has-detail=false>
       </things-mobile-list>
     </paper-material>
   </template>
@@ -104,6 +112,11 @@
         detailMenuMeta: {
           type: Object,
           observer: '_detailMenuMetaChanged'
+        },
+
+        detailInfo: {
+          type: Object,
+          observer: '_detailInfoChanged'
         }
       },
 
@@ -115,7 +128,7 @@
       },
 
       behaviors: [
-        Things.MetaElementsBehavior,
+        Things.ElementsMetaBehavior,
         Things.MenuContentBehavior,
         Things.FormBehavior,
         Things.SpinnerBehavior,
@@ -212,12 +225,43 @@
       },
 
       _detailMenuMetaChanged: function(detailMenuMeta) {
-        // TODO
-        console.log(detailMenuMeta);
+        var searchUrl = detailMenuMeta[0].search_url;
+        var currentPath = window.location.hash;
+
+        var path = '';
+        currentPath.split('/').forEach(function(p) {
+          var idx = p.indexOf('mobile_');
+          if (idx >= 0) {
+            path = p.substring(idx + 7);
+          }
+        });
+
+        this.searchDetailUrl = path + '/' + this.values.id + '/' + searchUrl;
+
+        this.$['detail-info-ajax'].generateRequest();
       },
 
       _valuesChanged: function(values) {
         this.setFormData(values);
+      },
+
+      _detailInfoChanged: function(detailInfo) {
+        if (!detailInfo) {
+          return;
+        }
+
+        var items = [];
+        detailInfo.forEach(function(i) {
+          var o = i.operation;
+          var oper = {
+            name: o.name,
+            description: o.description
+          }
+
+          items.push(oper);
+        });
+
+        this.items = items;
       },
 
       /**
