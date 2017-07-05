@@ -184,11 +184,11 @@ Copyright © HatioLab Inc. All rights reserved.
 
       loadMoreData: function() {
         this.async(function() {
-        	console.log('loading ' + limit + ' more...');
+        	console.log('loading ' + this.limit + ' more...');
         	// TODO load next page
 
           this.$.threshold.clearTriggers();
-        }, limit);
+        }, this.limit);
       },
 
       
