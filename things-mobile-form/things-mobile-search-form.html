@@ -41,7 +41,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       <iron-collapse id="content" class="flex" opened>
         <form is="iron-form"
-          id="mobile-search-form"
+          id="mobileSearchForm"
           action="[[action]]"
           method="GET"
           content-type="[[contentType]]"
@@ -87,6 +87,16 @@ Copyright © HatioLab Inc. All rights reserved.
         actionUrl: {
           type: String,
           observer: 'actionUrlChanged'
+        },
+
+        page: {
+          type: Number,
+          value: 1
+        },
+
+        limit: {
+          type: Number,
+          value: 50
         }
       },
 
@@ -132,6 +142,8 @@ Copyright © HatioLab Inc. All rights reserved.
        */
       reconfigureMyForm: function() {
         // this.fire('things-search-form-configured', this.formFields);  // Things.MenuContentBehavior
+        
+        this.active = true;
       },
 
       /**
@@ -213,7 +225,7 @@ Copyright © HatioLab Inc. All rights reserved.
       _successResponseHandler: function(event) {
         this.stopSpinner();
         this.lastResponse = event.detail.xhr.response;
-        this.handleSuccessResponse(this.lastResponse);
+        // this.handleSuccessResponse(this.lastResponse);
       },
 
       /**

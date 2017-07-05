@@ -162,6 +162,17 @@ Copyright © HatioLab Inc. All rights reserved.
         hasDetail: {
           type: Boolean,
           value: true
+        },
+
+        page: {
+          type: Number,
+          value: 1,
+          notify: true
+        },
+
+        totalCount: {
+          type: Number,
+          value: 1
         }
       },
 
@@ -183,15 +194,17 @@ Copyright © HatioLab Inc. All rights reserved.
       },
 
       loadMoreData: function() {
+        var me = this;
         this.async(function() {
-        	console.log('loading ' + this.limit + ' more...');
-        	// TODO load next page
+          if (me.totalCount > 0 && (me.limit * me.page > me.totalCount)) {
+            return;
+          }
+          console.log('loading more...');
 
+        	me.page++;
           this.$.threshold.clearTriggers();
-        }, this.limit);
+        }, 50);
       },
-
-      
 
       showDetail: function(e) {
         e.preventDefault();

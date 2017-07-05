@@ -39,22 +39,24 @@ Copyright © HatioLab Inc. All rights reserved.
 		</things-ajax>
 
 		<things-mobile-search-form
-			id="search-form"
+			page="{{page}}"
+			limit="[[limit]]"
 			form-fields="[[searchFormFields]]"
 			select-fields="[[selectFields]]"
 			sort-fields="[[sortFields]]"
 			action-url="[[menuInfo.resource_url]]"
-			page="{{page}}"
-			limit="[[limit]]"
 			last-response="{{lastResponse}}">
 		</things-mobile-search-form>
 
 		<things-mobile-list
 			id="list"
-			limit="{{limit}}"
+			page="{{page}}"
+			limit="[[limit]]"
 			meta-data="[[metaData]]"
 			items="[[items]]"
-			class="flex">
+			class="flex"
+			total-count="[[totalCount]]"
+			on-next-page="queryNextPage">
 		</things-mobile-list>
 
 	</template>
@@ -69,18 +71,47 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			properties: {
 		        items: {
-		          	type: Array
+		          	type: Array,
+		          	value: []
+		        },
+
+		        page: {
+		        	type: Number,
+		        	value: 1,
+		        	notify: true
 		        },
 
 		        limit: {
 		        	type: Number,
 		        	value: 50
+		        }, 
+
+		        totalCount: {
+		        	type: Number,
+		        	value: 0
 		        }
 			},
 
-			listeners: {
+			queryNextPage: function() {
+				Polymer.dom(this).querySelector('#mobileSearchForm').submit();
+			},
 
-			}
+			/**
+			 * 조회 데이터 변경시
+			 * @param {Object} lastResponse
+			 ******
+			 */
+			_responseChanged: function(lastResponse) {
+				var items = (this.itemsProp && lastResponse[this.itemsProp]) ? lastResponse[this.itemsProp] : lastResponse;
+
+				if (this.page > 1) {
+					this.items = this.items.concat(items);
+				} else {
+					this.items = items;
+				}
+
+				this.totalCount = (this.totalProp && lastResponse[this.totalProp]) ? lastResponse[this.totalProp] : lastResponse.length;
+			},
 		});
 	</script>
 </dom-module>
