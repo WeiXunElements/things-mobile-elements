@@ -40,6 +40,11 @@ Things.ElementsMetaBehavior = {
 			newElement.setAttribute('label', fieldLabel);
 			newElement.setAttribute('resource-display-field', 'description');
 			newElement.setAttribute('resource-type', 'CODE');
+
+			if (this.allReadonly) {
+				newElement.setAttribute('static', true);
+			}
+			
 			break;
 
 		// case 'resource-combo':
@@ -83,6 +88,9 @@ Things.ElementsMetaBehavior = {
 			newElement = document.createElement('things-mobile-resource-selector');
 			newElement.setAttribute('name', meta.name);
 			newElement.setAttribute('label', fieldLabel);
+			if (this.allReadonly) {
+				newElement.setAttribute('static', true);
+			}
 
 			if (meta.userData) {
 				var userData = meta.userData;
@@ -112,7 +120,7 @@ Things.ElementsMetaBehavior = {
 				newElement.setAttribute('hidden', true);
 			}
 
-			if(meta.readonly) {
+			if(meta.readonly || this.allReadonly) {
 				newElement.setAttribute('readonly', true);
 			}
 		}

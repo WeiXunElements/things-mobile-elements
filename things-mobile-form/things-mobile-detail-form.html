@@ -121,6 +121,11 @@ Copyright © HatioLab Inc. All rights reserved.
         detailInfo: {
           type: Object,
           observer: '_detailInfoChanged'
+        },
+
+        allReadonly: {
+          type: Boolean,
+          value: true
         }
       },
 
@@ -353,7 +358,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
           this.detailFormId = menuMeta.detail_form_id;
           this.saveUrl = menuMeta.grid_save_url;
-          this.canSave = this.saveUrl ? true : false;
+          // this.canSave = this.saveUrl ? true : false;
+          this.canSave = false;
 
           this.formFields = metaData.columns;  // FIXME
           this.resourceUrl = menuMeta.resource_url;
