@@ -4,10 +4,10 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 <link rel="import" href="../../polymer/polymer.html">
 
-<link rel="import" href="../../things-grid/things-resource-grid.html">
 <link rel="import" href="../../things-ajax/things-ajax.html">
 
 <link rel="import" href="../things-mobile-form/things-mobile-search-form.html">
+<link rel="import" href="../things-mobile-list/things-mobile-list.html">
 
 <link rel="import" href="./things-mobile-selector-content-behavior.html">
 
@@ -43,28 +43,25 @@ Copyright © HatioLab Inc. All rights reserved.
 			</things-mobile-search-form>
 		</template>
 
-		<things-resource-grid
+		<!-- <things-resource-grid
 			id="grid"
 			model="[[gridModel]]"
 			columns="[[gridColumns]]"
 			config="[[gridConfig]]"
-			buttons="[[buttons]]"
 			current-page="{{page}}"
 			limit="{{limit}}"
 			data="[[items]]"
 			total-count="[[itemCount]]"
 			fixed-column-count="0"
-			prevent-multi-click-event
 			paginatable>
-		</things-resource-grid>
+		</things-resource-grid> -->
 
-		<!-- <things-mobile-list
+		<things-mobile-list
 			id="list"
 			limit="{{limit}}"
 			items="[[items]]"
-			has-detail=false
 			class="flex">
-		</things-mobile-list> -->
+		</things-mobile-list>
 
 	    <things-ajax
 			id="entity-content"
@@ -76,7 +73,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			query-fields="[[queryFields]]"
 			sort-fields="[[sortFields]]"
 			last-response="{{entityMeta}}">
-	    </things-ajax>
+		</things-ajax>
 
 	    <!-- <things-ajax
 			id="code-content"
@@ -115,16 +112,6 @@ Copyright © HatioLab Inc. All rights reserved.
 				limit: {
 					type: Number,
 					value: 100
-				},
-
-				/**
-				 * 버튼
-				 * ******
-				 * @type {Array}
-				 */
-				buttons: {
-					type: Array,
-					value: []
 				},
 
 				contentType: {
@@ -284,7 +271,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			listeners : {
 				// 'grid.things-grid-configured' : 'refreshGridData',
-				'grid.things-grid-row-data-select' : 'selectRecord'
+				// 'grid.things-grid-row-data-select' : 'selectRecord',
+				'list.item-select': 'selectRecord'
 			},
 
 			observers: [

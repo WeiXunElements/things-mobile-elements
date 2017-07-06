@@ -8,14 +8,14 @@ Copyright © HatioLab Inc. All rights reserved.
 
 <dom-module id="things-mobile-list">
   <template>
-		<style>
-			:host {
-				display: block;
-				@apply(--layout-vertical);
-				@apply(--layout-flex);
-			}
+    <style>
+      :host {
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-flex);
+      }
 
-			iron-list {
+      iron-list {
         /*padding-top: 64px;*/
         --iron-list-items-container: {
           display: block;
@@ -66,10 +66,10 @@ Copyright © HatioLab Inc. All rights reserved.
         display: none;
       }
 
-      .item:hover .shortText::after {
+      /*.item:hover .shortText::after {
         content: ' [+]';
         color: gray;
-      }
+      }*/
 
       .item.expanded:hover .shortText::after {
         content: '';
@@ -97,7 +97,7 @@ Copyright © HatioLab Inc. All rights reserved.
           font-size: 14px;
         }
       }
-		</style>
+    </style>
 
 
     <iron-scroll-threshold
@@ -105,19 +105,19 @@ Copyright © HatioLab Inc. All rights reserved.
       on-lower-threshold="loadMoreData" 
       id="threshold">
       <iron-list class="scroll-hide" scroll-target="threshold" items="[[items]]">
-	      <template>
-					<div class="item">
-						<div class="pad">
-							<div class="primary">[[item.name]]</div>
-							<div class="shortText">[[buildInfo(item)]]</div>
-						</div>
+        <template>
+          <div class="item">
+            <div class="pad" record-obj="[[objectValue(item)]]" on-tap="selectRecord">
+              <div class="primary">[[item.name]]</div>
+              <div class="shortText">[[buildInfo(item)]]</div>
+            </div>
             <template is="dom-if" if="[[hasDetail]]">
-							<iron-icon id="[[item.id]]" values=[[item]] icon="chevron-right" on-tap="showDetail"></iron-icon>
+              <iron-icon id="[[item.id]]" values="[[item]]" icon="chevron-right" on-tap="showDetail"></iron-icon>
             </template>
-					</div>
-	      </template>
-  		</iron-list>
-  	</iron-scroll-threshold>
+          </div>
+        </template>
+      </iron-list>
+    </iron-scroll-threshold>
 
   </template>
   <script>
@@ -144,24 +144,24 @@ Copyright © HatioLab Inc. All rights reserved.
         },
 
         dataUrl: {
-        	type: String
+          type: String
         },
 
         params: {
-        	type: Object
+          type: Object
         },
 
         metaData: {
-        	type: Object
+          type: Object
         },
 
         configured: {
-        	type: Boolean
+          type: Boolean
         },
 
         hasDetail: {
           type: Boolean,
-          value: true
+          value: false
         },
 
         page: {
@@ -201,7 +201,7 @@ Copyright © HatioLab Inc. All rights reserved.
           }
           console.log('loading more...');
 
-        	me.page++;
+          me.page++;
           this.$.threshold.clearTriggers();
         }, 50);
       },
@@ -209,14 +209,30 @@ Copyright © HatioLab Inc. All rights reserved.
       showDetail: function(e) {
         e.preventDefault();
         
-				var url = '/' + this.metaData.menu.routing + '/detail';
-				var target = e.target;
-				var params = {
-					metaData: this.metaData,
-					values: target.values,
+        var url = '/' + this.metaData.menu.routing + '/detail';
+        var target = e.target;
+        var params = {
+          metaData: this.metaData,
+          values: target.values,
           gridEditorOnly: true
-				};
-				page(url, params);
+        };
+        page(url, params);
+      },
+
+      selectRecord: function(e) {
+        var target = e.currentTarget;
+
+        this.fire('item-select', target.recordObj);
+      },
+
+      objectValue: function(item) {
+        var recordObj = {
+          id: item.id,
+          name: item.name,
+          description: item.description
+        };
+
+        return recordObj;
       }
     })
   </script>
