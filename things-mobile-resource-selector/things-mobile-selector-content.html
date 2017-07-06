@@ -29,6 +29,9 @@ Copyright © HatioLab Inc. All rights reserved.
 			}
 		</style>
 	
+		<things-i18n-msg msg="{{labelName}}" msgid="label.name" auto hidden>Comment</things-i18n-msg>
+		<things-i18n-msg msg="{{labelDesc}}" msgid="label.description" auto hidden>Comment</things-i18n-msg>
+
 		<template is="dom-if" if=[[entityName]]>
 			<things-mobile-search-form
 				id="content-search-form"
@@ -91,7 +94,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			is: 'things-mobile-selector-content',
 
 			behaviors: [
-				Things.MobileSelectorContentBehavior,
+				// Things.MobileSelectorContentBehavior,
 			],
 
 			properties: {
@@ -282,6 +285,21 @@ Copyright © HatioLab Inc. All rights reserved.
 				'_entityNameChanged(entityName)',
 				'_searchFieldsChanged(searchFields)'
 			],
+
+			attached: function() {
+				var me = this;
+				this.searchFormFields = [{
+					label: me.labelName,	// FIXME
+					name: 'name',
+					op: 'contains',
+					type: 'text'
+				}, {
+					label: me.labelDesc,	// FIXME
+					name: 'description',
+					op: 'contains',
+					type: 'text'
+				}];
+			},
 
 			/**
 			 * 엔티티 메타데이터 변경시
