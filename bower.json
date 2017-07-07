@@ -1,12 +1,12 @@
 {
   "name": "things-mobile-elements",
-  "homepage": "https://github.com/ThingsElements/things-mobile-elements",
+  "homepage": "http://elements.hatiolab.com/",
   "authors": [
     "hatio lab"
   ],
   "description": "Things mobile elements",
   "main": "",
-  "license": "MIT",
+  "license": "http://license.hatiolab.com/EULA",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -16,5 +16,6 @@
   ],
   "dependencies": {
     "l2t-paper-slider": "^1.4.1"
-  }
+  },
+  "version": "2.2.0"
 }
