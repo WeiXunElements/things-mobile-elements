@@ -71,6 +71,10 @@ Things.ElementsMetaBehavior = {
 				}
 			}
 
+			if(meta.readonly || this.allReadonly) {
+				newElement.setAttribute('readonly', true);
+			}
+
 			break;
 
 		case 'number':
