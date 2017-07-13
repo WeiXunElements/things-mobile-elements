@@ -53,7 +53,8 @@ Things.MobileListMetaBehaviorImpl = {
 		metaData.columns.forEach(function(column) {
 			if (me.infoFields.length < 3 && column.name != 'id' 
 				&& column.name != 'name' && column.name != 'domain_id'
-				&& column.name != 'menu_detail_id' && column.name != 'menu_detail' ) {
+				&& column.name != 'menu_detail_id' && column.name != 'menu_detail'
+				&& column.name != 'description' ) {
 				me.infoFields.push(column.name);
 			}
 		});
