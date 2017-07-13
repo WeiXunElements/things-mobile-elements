@@ -329,6 +329,10 @@ Copyright © HatioLab Inc. All rights reserved.
 					return;
 				}
 
+				if (!this.searchFormFields) {
+					this.searchFormFields = [];
+				}
+
 				this.searchFormFields = this.searchFormFields.concat(searchFields);
 			},
 
