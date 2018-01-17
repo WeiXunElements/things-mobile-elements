@@ -15,7 +15,8 @@
     "tests"
   ],
   "dependencies": {
-    "l2t-paper-slider": "^1.4.1"
+    "l2t-paper-slider": "^1.4.1",
+    "chart.js": "^2.7.1",
   },
   "version": "v2.2.0"
 }

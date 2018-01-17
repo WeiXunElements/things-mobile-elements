@@ -1,0 +1,116 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./things-chart.html">
+
+<dom-module id="things-column-chart">
+    <template>
+        <style>
+            div {
+                padding:15px;
+            }
+            canvas{
+                width:100%;height:100%;
+            }
+        </style>
+        <div>
+            <canvas id="canvas"></canvas>
+        </div>
+    </template>
+    
+    <script>
+    class ThingsColumnChart extends customElements.get('things-chart') {
+        static get is() { return 'things-column-chart'; }
+        static get properties() {
+            return {
+                type: {
+                    type: String,
+                    value: 'bar'
+                },
+                // google-chart와 겸용시 사용.
+                // customOptions: {
+                //     type: String,
+                //     observer: '_customOptionsChanged'
+                // },
+                options: {
+                    type: Object,
+                    computed: '_computedOptions(title, borderWidth, legendPos, scales)'
+                },
+                // columns: Array,
+                // backgroundColors: Array,
+                // borderColors: Array,
+                // rows: Array,
+                // chart: Object,
+                // title: String,
+                // isStacked: Boolean,
+                scales: {
+                    type: Object,
+                    computed: '_computeScales(isStacked)'
+                }
+            };
+        }
+        // _customOptionsChanged(customOptions) {
+        //     if (!customOptions) {
+        //         return;
+        //     }
+
+        //     if (customOptions.isStacked) {
+        //         this.scales = {
+        //             xAxes: [{
+        //                 stacked: true,
+        //             }],
+        //             yAxes: [{
+        //                 stacked: true
+        //             }]
+        //         };
+        //     }
+        //     this.title = customOptions.title;
+        // }
+        
+        _computeScales(isStacked) {
+            if (isStacked) {
+                return {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            }
+        }
+
+        _computedOptions(title, borderWidth, legendPos, scales) {
+            var options = {
+                // Elements options apply to all of the options unless overridden in a dataset
+                // In this case, we are setting the border of each horizontal bar to be 2px wide
+                elements: {
+                    rectangle: {
+                        borderWidth: borderWidth
+                    }
+                },
+                responsive: true,
+                legend: {
+                    position: legendPos
+                },
+                scales: scales
+            };
+
+            if (title) {
+                options.title = {
+                    display: true,
+                    text: title
+                };
+            }
+
+            return options;
+        }
+    }
+
+    customElements.define(ThingsColumnChart.is, ThingsColumnChart);
+    </script>
+</dom-module>

@@ -1,0 +1,118 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./things-chart.html">
+
+<dom-module id="things-line-chart">
+    <template>
+        <style>
+            div {
+                padding:15px;
+            }
+            canvas{
+                width:100%;height:100%;
+            }
+        </style>
+        <div>
+            <canvas id="canvas"></canvas>
+        </div>
+    </template>
+    
+    <script>
+    class ThingsLineChart extends customElements.get('things-chart') {
+        static get is() { return 'things-line-chart'; }
+        static get properties() {
+            return {
+                type: {
+                    type: String,
+                    value: 'bar'
+                },
+                options: {
+                    type: Object,
+                    computed: '_computedOptions(title, scales)'
+                },
+                // columns: Array,
+                // backgroundColors: Array,
+                // borderColors: Array,
+                // rows: Array,
+                // chart: Object,
+                // title: String,
+                // isStacked: Boolean,
+                scales: {
+                    type: Object,
+                    computed: '_computeScales(isStacked)'
+                }
+            };
+        }
+        
+        _computeScales() {
+            return {
+                yAxes: [{
+                    type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                    display: true,
+                    position: "left",
+                    id: "y-axis-1",
+                }, {
+                    type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                    display: true,
+                    position: "right",
+                    id: "y-axis-2",
+
+                    // grid line settings
+                    gridLines: {
+                        drawOnChartArea: false, // only want the grid lines for one axis to show up
+                    },
+                }]
+            }
+        }
+
+        _computedOptions(title, scales) {
+            var options = {
+                responsive: true,
+                hoverMode: 'index',
+                stacked: false,
+            };
+
+            if (title) {
+                options.title = {
+                    display: true,
+                    text: title
+                };
+            }
+
+            if (scales) {
+                options.scales = scales;
+            }
+
+            return options;
+        }
+
+        /* override from things-chart */
+        _drawChart() {
+            if (this.chart) {
+                this.chart.destroy();
+            }
+
+            var canvas = this.$.canvas;
+            var ctx = canvas.getContext("2d");
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            this.chartCalData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
+            if (!this.chartCalData) {
+                return;
+            }
+            
+            this.chart = Chart.Line(ctx, {
+                data: this.chartCalData,
+                options: this.options
+            });
+        }
+    }
+
+    customElements.define(ThingsLineChart.is, ThingsLineChart);
+    </script>
+</dom-module>
