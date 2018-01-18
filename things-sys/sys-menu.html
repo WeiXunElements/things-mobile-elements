@@ -1,0 +1,359 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="./sys-ajax.html">
+
+<dom-module id="sys-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+        /*background-color:var(--things-sidebar-background-color);*/
+        background-color:#fff;
+        color:#585858;
+        position: relative;
+        height:calc(100% - 85px);
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      #mainContainer {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+      paper-button {
+        display: block;
+        border-bottom: 1px solid rgba(0, 0, 0, .15);
+        background-color: #fff;
+        margin: 0;padding:15px 10px 5px 12px;
+        font-size: 14px;
+        font-weight:bold;
+        text-align: left;
+        -webkit-border-radius: 0px;
+        -moz-border-radius: 0px;
+        border-radius: 0px;
+      }
+      iron-collapse:focus,a:focus{outline:none;}
+      paper-listbox {
+        background-color: #f6f6f6;
+        border-bottom: 1px solid rgba(0, 0, 0, .05);
+        padding:0;
+        overflow:hidden
+      }
+      paper-item {
+        padding: 3px 5px 6px 10px;
+        display: block !important;
+        overflow:hidden;
+        width:calc(50% - 16px);
+        float:left;
+        min-height: 30px !important;max-height:32px;
+        border-right: 1px solid rgba(0, 0, 0, .05);
+        border-bottom: 1px solid rgba(0, 0, 0, .05);
+        font-size: 15px !important;
+        line-height: 2.5 !important;
+        text-overflow:ellipsis;
+      }
+      paper-item[active]{
+        color:#fff;
+        font-weight:bold;
+        background-color:rgba(0,0,0,.1);
+      }
+      paper-item[active]:before{
+        /*background-color:var(--things-secondary-background-color);*/
+        background-color:#607D8B;
+        opacity:1;
+      }
+      .scroll {
+        height: 100%;
+        overflow-y: scroll;
+      }
+      a {
+        text-decoration:none;
+      }
+    </style>
+
+    <sys-ajax
+      auto
+      id="ajax-menu"
+      method="GET"
+      content-type="application/x-www-form-urlencoded"
+      curl="[[menuUrl]]"
+      custom-params="[[queryParams]]"
+      last-response="{{menus}}">
+    </sys-ajax>
+
+    <div id="mainContainer">
+    <!-- <div class="brand">[[brandName]]</div> -->
+
+      <dom-repeat items="[[groups]]" as="group">
+      <template>
+        <paper-button aria-controls={{group.menuGroupId}} on-tap="toggle">
+          [[group.title]]
+        </paper-button>
+
+        <iron-collapse id="{{group.menuGroupId}}" opened tabindex="0">
+          <paper-listbox selected-item="[[selectedItem]]" class="content">
+            <dom-repeat items="[[group.child]]" as="item">
+            <template>
+              <paper-item data="[[item]]" on-tap="_tapItem">[[item.title]]</paper-item>
+            </template>
+            </dom-repeat>
+          </paper-listbox>
+        </iron-collapse>
+      </template>
+      </dom-repeat>
+    </div>
+
+  </template>
+
+  <script>
+    class SysMenu extends Polymer.Element {
+      static get is() { return 'sys-menu'; }
+
+      static get properties() {
+        return {
+          /**
+           * 메뉴 카테고리 - UI / OI 구분을 위한 메뉴 데이터 조회 파라미터
+           * *******
+           * @type {String}
+           */
+          menuCategory: {
+            type: String,
+            value: 'MOBILE'
+          },
+
+          /**
+           * Brand title that will be show on top of menu
+           * ********
+           * @type {String}
+           */
+          // brandName: {
+          //   type: String,
+          //   value: 'X-MES'
+          // },
+
+          /**
+           * url that where the menu data get from
+           * ********
+           * @type {String}
+           */
+          menuUrl: {
+            type: String,
+            value: '/menus/user_menus/MOBILE'
+            // computed: '_computeMenuUrl(menuCategory)'
+          },
+
+          /**
+           * query condition for query menu data
+           * *******
+           * @type {Array}
+           */
+          queryParams : {
+            type: Array,
+            computed: '_computeQueryParams(menuCategory)'
+          },
+
+          /**
+           * menu group returns menu tree as Array
+           * [ {
+           *    id: 1, name: 'System', title: 'System', menu_type: 'Menu', child: [ { child menus ...} ]
+           * }, {
+           *    id: 2, name: 'Base', title: 'Base', menu_type: 'Menu', child: [ { child menus ...} ]
+           * } ]
+           */
+          groups: {
+            type: Array,
+            notify: true,
+            computed: '_computeGroups(menus)'
+          },
+
+          /**
+           * 사용자 권한에 따른 메뉴 리스트
+           * *******
+           * @type {Array}
+           */
+          menus: {
+            type: Array,
+            notify: true
+            // observer: '_menusChanged'
+          },
+
+          selectedItem: {
+            type: Object,
+            notify: true
+          },
+
+          currentMenu: {
+            type: Object,
+            notify: true
+          }
+        };
+      }
+
+      // _computeMenuUrl(category) {
+      //   console.log(category);
+      //   return `${globals.baseUrl}/menus/user_menus/${category}`;
+      // }
+
+      _computeGroups(menus) {
+        if (!menus || menus.length <= 0) {
+          return [];
+        }
+
+        let groups = [], me = this;
+        menus.forEach((item) => {
+          if (item.menu_type === 'MENU') {
+            item.child = me._getChildMenu(item, menus);
+            item.menuGroupId = 'group' + item.id;
+            groups.push(item);
+          }
+        });
+
+        return groups;
+      }
+
+      // /**
+      //  * When last response data recieved this function will be called
+      //  * then convert these data to menu tree and set to menuGroup
+      //  * also convert to screen array and set to screens.
+      //  ********
+      //  * @param {Object} menus 메뉴 정보 menu.total : 총 메뉴 개수, menu.items : 메뉴 리스트
+      //  */
+      // _menusChanged(menus) {
+      //   if(!menus || menus.length <= 0) {
+      //     this.groups = [];
+      //     return;
+      //   }
+
+      //   let groups = [], me = this;
+      //   menus.forEach((item) => {
+      //     if (item.menu_type === 'MENU') {
+      //       item.child = me._getChildMenu(item, menus);
+      //       item.menuGroupId = 'group' + item.id;
+      //       groups.push(item);
+      //     }
+      //   });
+
+      //   this.groups = groups;
+      // }
+
+      _tapItem(e) {
+        var target = e.currentTarget;
+        this.currentMenu = target.data;
+
+        this.dispatchEvent(new CustomEvent('selecte-menu', {
+          bubbles: true,
+          composed: true,
+          detail: target.data
+        }));
+      }
+
+      /**
+       * Find child menu and return it
+       ********
+       * @param  {Array} menuGroup parent group id
+       * @param  {Array} items all menu list
+       * @return {Array} child screen array
+       */
+      _getChildMenu(menuGroup, items) {
+        var me = this;
+        return items.filter(function(item) {
+          let screenMenuFlag = (item && item.menu_type === 'SCREEN' && item.parent_id === menuGroup.id);
+          if(screenMenuFlag) {
+            item.parent_name = menuGroup.title;
+
+            try {
+              me._appendMainPages(item);
+            } catch(e) {
+              console.warn(e.message);
+            }
+          }
+          return screenMenuFlag;
+        });
+      }
+
+      _appendMainPages(meta) {
+        if (meta.routing_type === 'RESOURCE') {
+          return;
+        }
+
+        if (!meta.template) {
+          console.log(meta);
+          console.warn('Template is empty');
+          return;
+        }
+
+        var element = document.createElement(meta.template);
+        if (!element) {
+          return;
+        }
+
+        // console.log(element);
+        element.setAttribute('name', meta.name);
+
+        // var main = document.querySelector('role=main');
+        var main = document.querySelector('iron-pages');
+        if (main) {
+          main.appendChild(element);
+        }
+      }
+
+      /**
+       * 메뉴 검색 조건 생성
+       *******
+       * @param {String} menuCategory
+       */
+      _computeQueryParams(menuCategory) {
+        var queryParams = {
+          page: 1,
+          limit: 0,
+          query: [{
+            name: 'category',
+            operator: 'eq',
+            value: this.menuCategory
+          }, {
+            name: 'hidden_flag',
+            operator: 'is_not_true'
+          }]
+          // sort:[]
+        };
+
+        return queryParams;
+      }
+
+      /**
+       * Icon path 구성
+       *******
+       * @param {String} icon 메뉴 아이콘 조회 URL 구성을 위한 첨부파일(이미지) ID
+       */
+      // _computeIconpath(icon) {
+      //   return this.globals.baseUrl + '/download/' + icon;
+      // }
+
+      /**
+       * Toggle menu group box
+       * ******
+       * @param {Object} e 버튼 클릭 이벤트
+       */
+      toggle(e) {
+        var target = this.shadowRoot.querySelector('#' + e.target.ariaControls);
+        if(target && target.toggle) {
+          target.toggle();
+        }
+      }
+
+      getMenus() {
+        this.$['ajax-menu'].generateRequest();
+      }
+    }
+
+    window.customElements.define(SysMenu.is, SysMenu);
+  </script>
+</dom-module>

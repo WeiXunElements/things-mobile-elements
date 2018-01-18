@@ -1,0 +1,103 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="things-textfield">
+    <template>
+        <style>
+            paper-input iron-icon{
+                --iron-icon-width:20px;
+                --iron-icon-height:20px;
+                margin-right:3px;
+                color:var(--paper-toast-background-color);
+            }
+            paper-icon-button{
+                width:20px;
+                height:20px;
+                padding:0;
+                color:#999
+            }
+        </style>
+
+        <paper-input
+            name="[[name]]"
+            type="[[type]]"
+            label="[[label]]"
+            placeholder="[[placeholder]]"
+            value="{{value}}"
+            pattern="[[pattern]]"
+            error-message="[[errorMessage]]"
+            required="[[required]]"
+            auto-validate="[[autoValidate]]"
+            min="[[min]]"
+            min="[[max]]"
+            readonly="[[readonly]]"
+            always-float-label>
+            <dom-if if="[[icon]]">
+                <template>
+                    <iron-icon 
+                        icon="[[icon]]" 
+                        hidden$=[[!icon]] 
+                        slot="prefix">
+                    </iron-icon>
+                </template>
+            </dom-if>
+            
+            <paper-icon-button 
+                hidden$=[[hideClear]]
+                slot="suffix" 
+                on-tap="_clearValue"
+                icon="clear"
+                alt="clear"
+                title="clear"
+                tabindex="-1">
+            </paper-icon-button>
+        </paper-input>
+    </template>
+
+    <script>
+        // class SysAjax extends customElements.get('iron-ajax') {
+        class ThingsTextfield extends Polymer.Element {
+            static get is() { return 'things-textfield' }
+
+            static get properties() {
+                return {
+                    name: String,
+                    type: String,
+                    label: String,
+                    value: {
+                        notify: true
+                    },
+                    label: String,
+                    icon: String,
+                    errorMessage: String,
+                    required: Boolean,
+                    autoValidate: Boolean,
+                    readonly: Boolean,
+                    hideClear: {
+                        readonly: true,
+                        value: true,
+                        computed: '_computeHideClear(value, readonly)'
+                    }
+                }
+            }
+
+            _computeHideClear(value, readonly) {
+                return !value || readonly ? true : false;
+            }
+
+            _clearValue() {
+                this.value = '';
+            }
+        }
+
+        customElements.define(ThingsTextfield.is, ThingsTextfield);
+    </script>
+
+</dom-module>

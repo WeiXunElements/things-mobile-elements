@@ -1,0 +1,249 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/iron-location/iron-query-params.html">
+
+<link rel="import" href="../mixins/things-locale-mounter.html">
+
+<dom-module id="sys-route">
+  <template>
+    <style>
+    </style>
+
+    <app-location route="{{route}}" use-hash-as-path></app-location>
+    <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{subroute}}">
+    </app-route>
+
+  </template>
+  <script>
+    class SysRoute extends mix(Polymer.Element).with(Things.LocaleMounter) {
+      static get is() { return 'sys-route'; }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object,
+            notify: true,
+            observer: '_routeChanged'
+          },
+          routeData: {
+            type: Object
+            // observer: '_routeDataChanged'
+          },
+          subroute: {
+            type: String,
+            notify: true
+            // observer: '_subrouteChanged'
+          },
+          path: String,
+          tail: String,
+          title: {
+            type: String,
+            notify: true,
+            readonly: true
+          },
+          page: {
+            type: String,
+            notify: true,
+            // observer: '_pageChanged'
+          },
+          menus: {
+            type: Array,
+            observer: '_menusChanged'
+          },
+          query: String,
+          queryParams: Object
+        };
+      }
+
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        this.routePage = new Map([
+          ['index.html', { localFile: 'sys-home', title: 'MES' }],
+          ['login', { localFile: 'sys-login', title: 'MES' }],
+          ['account_reactive', { localFile: 'sys-account-reactive', title: 'MES' }],
+          ['account_reset', { localFile: 'sys-account-reset', title: 'MES' }]
+        ]);
+      }
+
+      _routeChanged(route) {
+        if (!route) {
+          return;
+        }
+
+        // console.log('routeChanged: ' + route.path);
+
+        var path = route.path;
+        var queryIndex = path.indexOf('?');
+        if (path && queryIndex >= 0) {
+          this.query = path.substring(queryIndex + 1);
+        }
+
+        this.path = path;
+        if (path === "" || path === "/") {
+          // this.page = 'home';
+          window.location.hash = "/home";
+          return;
+        } else {
+          this.page = this.routeData.page;
+        }
+
+        this._page(this.page);
+      }
+
+      // _pageChanged(page) {
+      //   this._page(page);
+      // }
+
+      _menusChanged(menus) {
+        if (menus === null || menus === undefined) {
+          return;
+        }
+
+        var me = this;
+        menus.forEach((menu) => {
+          // console.log(menu);
+          let routingType = menu.routing_type;
+          let routing = menu.routing;
+
+          if (routingType === 'RESOURCE') {
+            if (!routing) {
+              console.warn('menu.routing is null!');
+              return;
+            }
+
+            switch (menu.template) {
+              case 'things-form-search-list':
+                me.routePage.set(`list/${routing}`, {
+                  localFile: menu.template,
+                  routing: menu.routing,
+                  title: menu.title
+                });
+
+                // detail
+                me.routePage.set(`detail/${routing}`, {
+                  localFile: 'things-detail-form',  // menu.detail_form_id
+                  routing: menu.routing,
+                  title: menu.title
+                });
+
+                break;
+
+              case 'things-scene-template':
+                me.routePage.set(`scenes/${routing}`, {
+                  localFile: menu.template,
+                  routing: menu.routing,
+                  title: menu.title
+                });
+
+                break;
+            }
+          } else if (routingType === 'STATIC') {
+            // let event = new CustomEvent('append-page', {
+            //   detail: {
+            //     template: menu.template, 
+            //     routing: routing, 
+            //     title: menu.title
+            //   }
+            // });
+            // me.dispatchEvent(event);
+
+            me.routePage.set(routing, {
+              localFile: menu.template, 
+              routing: menu.routing, 
+              title: menu.title
+            });
+          }
+        });
+
+        this._page();
+      }
+
+      _page(page) {
+        if (!this.routePage) {
+          return;
+        }
+
+        page = page || this.page;
+        var menuInfo = this.routePage.get(page);
+        if (!menuInfo) {
+          switch (page) {
+            case 'list':
+              menuInfo = this.routePage.get(this.path.substring(1));
+              break;
+            case 'detail':
+              let paths = this.path.split('/');
+              if (paths.length === 4) {
+                menuInfo = this.routePage.get(`${paths[1]}/${paths[2]}`);
+              }
+              break;
+            case 'scenes':
+              menuInfo = this.routePage.get(this.path.substring(1));
+              break;
+          }
+        }
+
+        if (menuInfo === null || menuInfo === undefined) {
+          // this._showPage404(); // TODO
+          console.warn('menuInfo is null!');
+          return;
+        }
+
+        var url = `../fragments/${menuInfo.localFile}.html`;
+        var resolvedPageUrl = this.resolveUrl(url);
+        Polymer.importHref(
+          resolvedPageUrl,
+          null,
+          this._showPage404.bind(this),
+          true);
+
+        this.title = menuInfo.title;
+        if (this.title) {
+          document.title = this.title + '-MES';
+        }
+      }
+
+      _showPage404() {
+        this.page = 'home';
+      }
+
+      // toHome() {
+      //   this.route = {
+      //     prefix: '',
+      //     path: '/home'
+      //   };
+      // }
+
+      // // FIXME
+      // _getUrl() {
+      //   var partiallyEncodedPath = window.encodeURI(
+      //       this.path).replace(/\#/g, '%23').replace(/\?/g, '%3F');
+      //   var partiallyEncodedQuery = '';
+      //   if (this.query) {
+      //     partiallyEncodedQuery = '?' + this.query.replace(/\#/g, '%23');
+      //   }
+      //   var partiallyEncodedHash = '';
+      //   if (this.hash) {
+      //     partiallyEncodedHash = '#' + window.encodeURI(this.hash);
+      //   }
+      //   return (
+      //       partiallyEncodedPath + partiallyEncodedQuery + partiallyEncodedHash);
+      // }
+    }
+
+    customElements.define(SysRoute.is, SysRoute);
+  </script>
+</dom-module>

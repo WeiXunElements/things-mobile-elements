@@ -1,0 +1,102 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="./sys-ajax.html">
+
+
+<dom-module id="things-scene-provider">
+    <template>
+        <style>
+        </style>
+
+        <sys-ajax 
+            auto
+            method="GET" 
+            content-type="application/json" 
+            curl="[[curl]]"
+            on-sys-ajax-response="_handleAjaxResponse"
+            on-sys-ajax-error="_handleAjaxError">
+        </sys-ajax>
+    </template>
+    <script>
+        class ThingsSceneProvider extends Polymer.Element {
+            static get is() { return 'things-scene-provider'; }
+            static get properties() {
+                return {
+                    sceneName: String,
+                    sceneBaseUrl: {
+                        type: String,
+                        value: 'http://board-demo.hatiolab.com/rest'
+                    },
+                    curl: {
+                        type: String,
+                        computed: '_computeCurl(sceneBaseUrl, sceneName)'
+                    },
+                    scene: {
+                        type: Object,
+                        notify: true
+                    },
+                    authorizationKey: String,
+                    authorizationType: String,
+                    fitMode: {
+                        type: String,
+                        value: 'both'
+                    }
+                };
+            }
+
+            _computeCurl(sceneBaseUrl, sceneName) {
+                if (!sceneBaseUrl || !sceneName) {
+                    return;
+                }
+
+                return `${sceneBaseUrl}/scenes/${sceneName}`;
+            }
+
+            _handleAjaxResponse(response) {
+                var obj = response.detail;
+                if (!obj) {
+                    return;
+                }
+
+                var me = this;
+                me.provider.get(this.sceneName).then((scene) => {
+                    // resolve(s);
+                    console.warn("Board fetched more than twice.", obj.name)
+                }, (e) => {
+                    try {
+                        var s = scene.create({
+                            model: JSON.parse(obj.model),
+                            mode: 0,
+                            refProvider: me.provider
+                        });
+
+                        s.app.baseUrl = me.sceneBaseUrl
+
+                        s.fit(me.fitMode);
+                        this.scene = s;
+                    } catch (e) {
+                        console.warn(e);
+                    }
+                })
+            }
+
+            get provider() {
+                if (!this._provider)
+                    this._provider = new scene.ReferenceMap(this.creator.bind(this), this.disposer.bind(this));
+                return this._provider
+            }
+
+            creator(sceneName, resolve, reject) {
+                reject(Error('not implemented yet'))
+            }
+
+            disposer(id, ref) { }
+        }
+
+        customElements.define(ThingsSceneProvider.is, ThingsSceneProvider);
+    </script>
+</dom-module>

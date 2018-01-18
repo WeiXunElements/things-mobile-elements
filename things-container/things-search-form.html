@@ -1,0 +1,274 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+
+<link rel="import" href="./things-field-pager.html">
+<link rel="import" href="./things-combo-box.html">
+
+<link rel="import" href="../mixins/things-field-meta-parser.html">
+<link rel="import" href="../mixins/things-params-builder.html">
+
+<dom-module id="things-search-form">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background-color:#f1f1f1;
+        border-bottom:1px solid rgba(0,0,0,.1);
+      }
+
+      form {
+        padding:0 15px 15px 15px;
+      }
+      paper-fab {
+        background-color: #4caf50;;
+        width: 45px;
+        height: 45px;
+        position: relative;
+        z-index: 5;
+        float: right;
+        top: -25px;
+        margin-bottom: -45px;
+        padding:0 !important;
+      }
+      paper-icon-button {
+        width:20px;height:20px;
+        padding:0;
+        opacity: .5;
+      }
+      paper-spinner-lite{
+        display:none;
+      }
+    </style>
+
+    <paper-spinner-lite></paper-spinner-lite>
+    <paper-toast 
+      class="fit-bottom"
+      text="[[toastMessage]]">
+    </paper-toast>
+
+    <paper-material elevation="0" class="layout horizontal flex">
+      <paper-icon-button icon="[[arrowIcon]]" on-tap="_tapToggle" hidden$="[[hideIcon]]"></paper-icon-button>
+
+      <iron-collapse id="content" class="flex" opened>
+        <iron-form 
+          id="searchForm" 
+          with-credentials 
+          on-iron-form-presubmit="_handlePresubmit"
+          on-iron-form-response="_handleFormResponse"
+          on-iron-form-error="_handleFormError">
+          <form method="[[method]]"
+            action="[[actionUrl]]"
+            content-type="[[contentType]]">
+
+            <things-field-pager
+              id="searchPager"
+              fields="[[formFields]]">
+            </things-field-pager>
+            <paper-fab icon="search" title="search" on-tap="_tapSearch"></paper-fab>
+          </form>
+        </iron-form>
+      </iron-collapse>
+    </paper-material>
+  </template>
+
+  <script>
+    class ThingsSearchForm extends mix(Polymer.Element)
+        .with(Things.FieldMetaParser, Things.ParamsBuilder) {
+      static get is() { return 'things-search-form'; }
+
+      static get properties() {
+        return {
+          auto: Boolean,
+          formFieldsMeta: {
+            type: Array,
+            observer: '_formFieldsMetaChanged'
+          },
+          formFields: {
+            type: Array
+          },
+          selectFields: {
+            type: Array
+            // value: [ 'id', 'name', 'description' ]
+          },
+          hideIcon: {
+            value: false
+          },
+          sortFields: {
+            type: Array
+            // value: ['{ "field": "name", "ascending": true }']
+          },
+          searchUrl: String,
+          actionUrl: {
+            type: String,
+            computed: '_computeActionUrl(searchUrl)',
+            observer: '_actionUrlChanged'
+          },
+          method: {
+            type: String,
+            value: 'GET'
+          },
+          contentType: {
+            type: String,
+            value: 'application/json'
+          },
+          isObjectParams: {
+            type: Boolean,
+            value: false
+          },
+          lastResponse: {
+            type: Object,
+            notify: true,
+          },
+          arrowIcon: {
+            type: String,
+            value: 'icons:arrow-drop-down'
+          },
+          initParams: Object,
+          page: {
+            type: Number,
+            value: 1,
+            observer: '_pageChanged' // page관리
+          },
+          limit: {
+            type: Number,
+            value: 50
+          }
+        };
+      }
+
+      _computeActionUrl(searchUrl) {
+        return `${globals.baseUrl}${searchUrl}`;
+      }
+
+      _tapToggle() {
+        this.$['content'].toggle();
+        if(this.$['content'].opened) {
+          this.arrowIcon = 'icons:arrow-drop-down';
+        } else {
+          this.arrowIcon = 'icons:arrow-drop-up';
+        }
+      }
+
+      _formFieldsMetaChanged(formFieldsMeta) {
+        if (!formFieldsMeta) {
+          return;
+        }
+        
+        var searchFields = [];
+        formFieldsMeta.forEach((meta) => {
+          var field = this._createElement(meta);
+
+          if(meta.search_init_val) {
+            field.default = meta.search_init_val;
+          }
+
+          searchFields.push(field);
+        }, this);
+
+        this.formFields = searchFields;
+      }
+
+      _actionUrlChanged(actionUrl) {
+        if (!this.auto) {
+          return;
+        }
+
+        this._tapSearch();
+      }
+
+      _pageChanged(page) {
+        if (page > 0) {
+          this.submit();
+        }
+      }
+
+      _tapSearch(e) {
+        this.page = 1;
+        this.submit();
+      }
+
+      _handlePresubmit() {
+        var form = this.$.searchForm;
+        if (!form.request) {
+          console.warn('form.request is undefined!');
+          return;
+        }
+
+        form.request.params = {
+          page: this.page,
+          limit: this.limit
+        };
+
+        var formValues = form.serializeForm();
+        if (this.isObjectParams) {
+          
+          for (var property in formValues) {
+            let value = formValues[property];
+            if (value) {
+              form.request.params[property] = value;
+            }
+          }
+
+        } else {
+          var query = this.queryBuilder(this.formFields, formValues, this.initParams);
+          if (query) {
+            form.request.params.query = query;
+          }
+
+          if (this.selectFields && this.selectFields.length > 0) {
+            form.request.params.select = this.selectFields.join(',');
+          }
+
+          if (this.sortFields && this.sortFields.length > 0) {
+            form.request.params.sort = this.sortFields.join(',');
+          }
+        }
+      }
+
+      _handleFormResponse(e) {
+        this.toggleSpinner();
+
+        this.lastResponse = e.detail.xhr.response;
+      }
+
+      _handleFormError(e) {
+        this.toggleSpinner();
+
+        this.toastMessage = e.detail.request.xhr.response.msg;
+        this.shadowRoot.querySelector('paper-toast').open();
+      }
+
+      submit() {
+        if (!this.$.searchForm._form) { // FIXME : _form is internal property
+          console.warn('searchForm._form is undefined');
+
+          // setTimeout(() => {
+          //   this.submit()
+          // }, 200);
+
+          return;
+        }
+
+        this.$.searchForm.submit();
+        this.toggleSpinner();
+      }
+
+      toggleSpinner() {
+        var spinner = this.shadowRoot.querySelector('paper-spinner-lite');
+        spinner.active = !spinner.active;
+      }
+    }
+
+    window.customElements.define(ThingsSearchForm.is, ThingsSearchForm);
+  </script>
+</dom-module>

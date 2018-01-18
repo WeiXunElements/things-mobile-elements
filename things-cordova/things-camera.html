@@ -1,0 +1,136 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+
+<dom-module id="things-camera">
+    <template>
+        <style>
+            :host {
+                display: block;
+                padding:15px 10px 10px 10px;
+                background-color:#f4f4f4;
+                border-radius:5px;
+            }
+            label{
+                font-size:14px;
+                color:var(--things-primary-text-color);
+            }
+            paper-icon-button{
+                width:40px;height:40px;
+                float:right;
+                margin-right:10px;
+                background-color:var(--things-secondary-background-color);
+                border-radius:50%;
+                color:var(--things-white-background-color);
+            }
+        </style>
+
+        <dom-if if="[[isEnable]]">
+            <template>
+                <paper-toast class="fit-bottom" text="[[toastMessage]]">
+                </paper-toast>
+                <label>[[t('text.image_upload')]]</label>
+
+                <paper-icon-button 
+                    icon="perm-media" 
+                    on-tap="_handleTapPhotoLib">
+                </paper-icon-button>
+
+                <paper-icon-button 
+                    icon="image:camera" 
+                    on-tap="_handleTapCamera">
+                </paper-icon-button>
+                
+                <!-- <iron-image 
+                    style="width:100%; height:auto;"  -->
+                <iron-image 
+                    style="width:100%; height:400px;" 
+                    src="[[imageSrc]]" 
+                    sizing="contain">
+                </iron-image>
+            </template>
+        </dom-if>
+    </template>
+    <script>
+        /**
+         * 카메라
+         */
+        class ThingsCamera extends Polymer.Element {
+            static get is() { return 'things-camera'; }
+
+            static get properties() {
+                return {
+                    scanFieldName: {
+                        type: String,
+                        value: 'lotId'
+                    },
+
+                    isEnable: {
+                        type: Boolean,
+                        readonly: true,
+                        notify: true,
+                        computed: '_computeIsEnable()'
+                    },
+
+                    srcType: Number,
+                    imageSrc: {
+                        type: String,
+                        notify: true
+                    },
+                    toastMessage: String
+                }
+            }
+
+            _computeIsEnable() {
+                return navigator && navigator.camera ? true : false;
+            }
+
+            openCamera(selection) {
+                var options = this.setOptions(this.srcType);
+
+                var me = this;
+                navigator.camera.getPicture((imageData) => {
+                    me.imageSrc = "data:image/jpeg;base64," + imageData;
+                }, (error) => {
+                    me.toastMessage = error;
+                    me.shadowRoot.querySelector('paper-toast').open();
+                }, options);
+            }
+
+            setOptions(srcType) {
+                var options = {
+                    // Some common settings are 20, 50, and 100
+                    quality: 50,
+                    // destinationType: Camera.DestinationType.FILE_URI,
+                    destinationType: Camera.DestinationType.DATA_URL,
+                    // In this app, dynamically set the picture source, Camera or photo gallery
+                    sourceType: srcType,
+                    encodingType: Camera.EncodingType.JPEG,
+                    mediaType: Camera.MediaType.PICTURE,
+                    allowEdit: false,
+                    correctOrientation: true,  //Corrects Android orientation quirks
+                }
+                return options;
+            }
+
+            _handleTapCamera() {
+                this.srcType = Camera.PictureSourceType.CAMERA;
+                this.openCamera();
+            }
+
+            _handleTapPhotoLib() {
+                this.srcType = Camera.PictureSourceType.PHOTOLIBRARY;
+                this.openCamera();
+            }
+        };
+
+        customElements.define(ThingsCamera.is, ThingsCamera);
+    </script>
+</dom-module>

@@ -1,0 +1,205 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
+
+<link rel="import" href="./sys-ajax.html">
+
+<dom-module id="things-combo-box">
+	<template>
+		<sys-ajax
+			auto
+			disable-spinner
+			curl="[[curl]]"
+			select-fields="[[selectFields]]"
+			custom-params="[[queryParams]]"
+            last-response="{{data}}">
+		</sys-ajax>
+		
+		<vaadin-combo-box 
+			label="[[label]]"
+			items="[[items]]" 
+			name="[[name]]"
+			value="{{value}}" 
+			filter="{{filter}}"
+			readonly="[[readonly]]"
+			item-value-path="[[valuePath]]" 
+			item-label-path="[[labelPath]]"
+			allow-custom-value="[[allowCustomValue]]"
+			on-keyup="_handleKeyUp"
+			on-value-changed="_handleValueChanged">
+			<template>
+				<paper-item-body>
+					<div>[[item.name]]: [[item.description]]</div>
+					<div hidden>[[item.id]]</div>
+				</paper-item-body>
+			</template>
+		</vaadin-combo-box>
+	</template>
+
+	<script>
+		class ThingsComboBox extends Polymer.Element {
+			static get is() { return 'things-combo-box'; }
+
+			static get properties() {
+				return {
+					resourceType: {
+						type: String,
+						observer: '_resourceTypeChanged'
+					},
+                    resourceRef: String,
+					label: String,
+					name: String,
+                    curl: {
+                        type: String,
+                        computed: '_computeCurl(resourceType, resourceRef)'
+                    },
+					selectFields: {
+						type: Array,
+						value: [ 'id', 'name', 'description' ]
+					},
+					queryParams: Object,
+					valuePath: String,
+					labelPath: String,
+					filter: String,
+					pageSize: {
+						type: Number,
+						value: 50
+					},
+					/**
+					* lastRequest's response.
+					*
+					* Note that lastResponse and lastError are set when lastRequest finishes,
+					* so if loading is true, then lastResponse and lastError will correspond
+					* to the result of the previous request.
+					*
+					* The type of the response is determined by the value of `handleAs` at
+					* the time that the request was generated.
+					*
+					* @type {Object}
+					*/
+					data: {
+						type: Object,
+						observer: '_dataChanged'
+					},
+
+					errMessage: String,
+					items: Array,
+					value: {
+						type: String,
+						notify: true
+					},
+					objValue: {
+						type: Object,
+						notify: true
+					},
+					opened: Boolean,
+					disabled: Boolean,
+					readonly: Boolean,
+					hasValue: Boolean,
+					invalid: Boolean,
+					focused: Boolean,
+					focusRing: Boolean,
+					loading: Boolean,
+					allowCustomValue: Boolean
+				}
+			}
+
+			connectedCallback() {
+				// console.log('connectedCallback');
+                super.connectedCallback();
+			}
+
+			disconnectedCallback() {
+                super.disconnectedCallback();
+            }
+            
+			_computeCurl(resourceType, resourceRef) {
+				var url = '';
+				this.queryParams = {}
+				if (resourceType === 'CODE') {
+					this.pageSize = 500;
+					if (resourceRef) {
+						this.queryParams.name = resourceRef;
+					}
+					url += '/common_codes/show_by_name';
+				} else {
+					url += '/data/entity';
+					if (resourceRef) {
+						this.queryParams.name = resourceRef;
+					}
+				}
+				this.queryParams.limit = this.pageSize;
+
+				return url;
+			}
+
+			// _computeObjValue(value) {
+			// 	var obj = {};
+			// 	obj[this.valuePath] = value;
+			// 	obj[this.labelPath] = label;
+			// 	console.log(obj);
+			// 	return obj;
+			// }
+
+			_resourceTypeChanged(resourceType) {
+				if (resourceType === 'CODE') {
+					this.valuePath = 'name';
+					this.labelPath = 'description';
+				} else {
+					this.valuePath = 'id';
+					this.labelPath = 'name';
+				}
+			}
+
+            _dataChanged(data) {
+				if (!data) {
+					return;
+				}
+
+				var items = [];
+				var valuePath = this.valuePath;
+				var labelPath = this.labelPath;
+				var resourceType = this.resourceType;
+				data.items.forEach((item) => {
+					if (resourceType === 'CODE') {
+						items.push({ name: item[valuePath], description: item[labelPath] });
+					} else {
+						items.push({ id: item[valuePath], name: item[labelPath], description: item.description });
+					}
+				});
+
+				this.items = items;
+            }
+
+			_handleKeyUp(e) {
+				e.preventDefault();
+
+				// Clear the timeout if it has already been set.
+				// This will prevent the previous task from executing
+				// if it has been less than <MILLISECONDS>
+				if (this.timeout) {
+					clearTimeout(this.timeout);
+				}
+
+				// Make a new timeout set to go off in 800ms
+				this.timeout = setTimeout((me) => {
+					var params = Object.assign({}, me.queryParams, { keyword: me.filter });
+					me.queryParams = params;
+				}, 800, this);
+			}
+
+			_handleValueChanged(e) {
+				var event = new CustomEvent('value-changed', { 'detail': this.value });
+				this.dispatchEvent(event);
+			}
+		}
+
+		customElements.define(ThingsComboBox.is, ThingsComboBox);
+	</script>
+
+</dom-module>

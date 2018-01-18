@@ -1,0 +1,285 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<dom-module id="things-data-list">
+    <template>
+        <style>
+            :host {
+                display: block;
+                @apply --layout-flex;
+                /* height: 400px; */
+            }
+
+            .item {
+                @apply --layout-vertical;
+                padding:9px 10px 9px 10px;
+                background-color: white;
+                border-bottom: 1px solid rgba(0,0,0,.1);
+                cursor: pointer;
+                
+            }
+            .item::after{
+                content:">";
+                position:absolute;
+                right:10px;
+                color:rgba(0,0,0,.15);
+                font-size:20px;
+            }
+
+            .primary {
+                display:block !important;
+                width:100%;
+                font-size: 18px;
+                color: #333
+            }
+
+            .shortText {
+                width:100%;
+                font-size: 13px;
+                color: #999;
+                line-height:1.4;
+                text-indent:2px;
+            }
+            
+            .item:hover .shortText::after {
+                color: gray;
+            }
+
+            @media (max-width: 460px) {
+                paper-toolbar .bottom.title {
+                    font-size: 14px;
+                }
+            }
+        </style>
+
+        <sys-ajax 
+            curl="[[dataUrl]]"
+            custom-params="[[customParams]]"
+			handle-as="[[handleAs]]" 
+			last-response="{{lastResponse}}">
+		</sys-ajax>
+        
+        <iron-scroll-threshold 
+            id="scrollTheshold"
+            on-lower-threshold="nextPage"
+            lower-triggered="{{nearBottom}}">
+            <iron-list id="list" style="height: 400px" items="[[items]]" scroll-target="scrollTheshold">
+                <template>
+                    <!-- <paper-item class="[[_computeItemClass(item)]]" style="[[_computeItemStyle(item)]]" record-obj="[[item]]" on-tap="_tapItem"> -->
+                    <paper-item class="item pad" style="[[_computeItemStyle(item)]]" record-obj="[[item]]" on-tap="_tapItem">
+                        <span class="primary">[[_buildTitle(item)]]</span>
+                        <div class="shortText">[[_buildInfo(item)]]</div>
+                    </paper-item>
+                </template>
+            </iron-list>
+        </iron-scroll-threshold>
+
+        <template is="dom-if" if="[[nearBottom]]">
+            <paper-progress indeterminate></paper-progress>
+        </template>
+    </template>
+
+    <script>
+        class ThingsDataList extends Polymer.Element {
+            static get is() { return 'things-data-list'; }
+
+            static get properties() {
+                return {
+                    auto: {
+                        type: Boolean,
+                        observer: '_autoChanged'
+                    },
+                    dataUrl: {
+                        type: String,
+                        observer: '_dataUrlChanged'
+                    },
+                    customParams: Object,
+                    handleAs: {
+                        type: String,
+                        value: 'json'
+                    },
+                    lastResponse: {
+                        type: Object,
+                        observer: '_lastResponseChanged'
+                    },
+                    itemsProp: {
+                        type: String,
+                        // value: "items"
+                    },
+                    items: {
+                        type: Array,
+                        observer: '_itemsChanged'
+                    },
+
+                    titleField: {
+                        type: String,
+                        value: 'name'
+                    },
+
+                    infoFields: {
+                        type: Array,
+                        value: ['description']
+                    },
+
+                    sortFields: {
+                        type: Array,
+                        value: []
+                    },
+
+                    scrollTarget: {
+                        type: Object,
+                        // value: 'document'
+                        computed: '_computeScrollTarget()'
+                    },
+                    page: {
+                        type: Number,
+                        value: 1
+                    },
+                    limit: {
+                        type: Number,
+                        value: 50
+                    },
+                    totalProp: {
+                        type: String,
+                        value: 'total'
+                    },
+                    totalCount: Number
+                };
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
+
+            _computeScrollTarget() {
+                return this.$;
+            }
+
+            _computeItemClass(item) {
+                return item.class ? item.class : "item pad";
+            }
+
+            _computeItemStyle(item) {
+                return item.style ? item.style : "background-color:var(--things-white-background-color);";
+            }
+
+            _autoChanged(auto) {
+                if (!auto) {
+                    return;
+                }
+                
+                this.loadData();
+            }
+            
+            _dataUrlChanged(dataUrl) {
+                this.page = 1;
+                this.customParams = {
+                    page: this.page,
+                    limit: this.limit
+                };
+                // this.sortFields = [];
+
+                if (this.auto) {
+                    this.loadData();
+                }
+            }
+
+            _lastResponseChanged(lastResponse) {
+                if (!lastResponse) {
+                    this.items = [];
+                    return;
+                }
+
+                var items = this.itemsProp ? lastResponse[this.itemsProp] : lastResponse;
+
+                if (this.page > 1) {
+                    this.items = this.items.concat(items);
+                } else {
+                    this.items = items;
+                }
+
+                this.totalCount = lastResponse[this.totalProp];
+            }
+
+            _buildTitle(item) {
+                var title = item[this.titleField];
+                if (typeof title === 'object') {
+                    return title.name;
+                }
+
+                return title;
+            }
+
+            _buildInfo(item) {
+                // console.log(item);
+                var infoValues = [];
+                var infoFields = this.infoFields;
+                for (var i in infoFields) {
+                    if (item.hasOwnProperty(infoFields[i])) {
+                        infoValues.push(item[infoFields[i]]);
+                    }
+                }
+
+                var info = infoValues.join(', ');
+                return info;
+            }
+
+            _itemsChanged(items) {
+                // Clear the lower threshold so we can load more data when the user scrolls down again.
+                this.$.scrollTheshold.clearTriggers();
+            }
+
+            _tapItem(e) { // show detail info
+                var currentTarget = e.currentTarget;
+                var recordObj = currentTarget.recordObj;
+
+                var event = new CustomEvent('item-selected', { detail: recordObj, bubbles: true, composed: true });
+                this.dispatchEvent(event);
+            }
+
+            loadData(queryParams) {
+                this.customParams = Object.assign({}, queryParams, {
+                    page: this.page,
+                    limit: this.limit 
+                });
+
+                if (this.sortFields) {
+                    this.customParams = Object.assign(this.customParams, {
+                        sort: this.sortFields
+                    });
+                }
+
+                var ajax = this.shadowRoot.querySelector('sys-ajax');
+                ajax.generateRequest();
+            }
+
+            nextPage() {
+                if (!this.totalCount) {
+                    return;
+                }
+
+                if (this.page >= Math.ceil(this.totalCount / this.limit)) {
+                    return;
+                }
+
+                this.$.scrollTheshold.clearTriggers();
+
+                this.page++;
+                this.loadData(this.params, this.page, this.limit);
+            }
+
+            clear() {
+                this.items = [];
+            }
+        }
+
+        customElements.define(ThingsDataList.is, ThingsDataList);
+    </script>
+</dom-module>

@@ -1,0 +1,156 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<dom-module id="things-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+        @apply --layout-flex;
+      }
+
+      /* iron-list {
+        display: block;
+        margin: auto;
+        margin-bottom: 60px;
+        border-bottom: 1px solid #ddd;
+      } */
+
+      .primary {
+        font-size: 16px;
+        color:#333
+      }
+
+      .shortText, .longText {
+        padding-top:2px;
+        font-size: 14px;
+        color:#999
+      }
+
+      .longText {
+        color: gray;
+        display: none;
+      }
+
+      .item:hover .shortText::after {
+        color: gray;
+      }
+
+      @media (max-width: 460px) {
+        paper-toolbar .bottom.title {
+          font-size: 14px;
+        }
+      }
+      
+    </style>
+
+    <iron-list items="[[items]]" scroll-target="[[scrollTarget]]">
+      <template>
+        <paper-item 
+          class="item pad"
+          style="[[_computeItemStyle(item)]]" 
+          record-obj="[[item]]" 
+          on-tap="_tapItem">
+          <span class="primary">[[_buildTitle(item)]]</span>
+          <div class="shortText">[[_buildInfo(item)]]</div>
+        </paper-item>
+      </template>
+    </iron-list>
+
+    <iron-scroll-threshold id="scrollTheshold"
+      lower-threshold="50"
+      on-lower-threshold="_loadMoreData"
+      scroll-target="[[scrollTarget]]">
+    </iron-scroll-threshold>
+
+  </template>
+
+  <script>
+    class ThingsList extends Polymer.Element {
+      static get is() { return 'things-list'; }
+
+      static get properties() {
+        return {
+          items: {
+            type: Array,
+            observer: '_itemsChanged'
+          },
+
+          titleField: {
+            type: String,
+            value: 'name'
+          },
+
+          infoFields: {
+            type: Array,
+            value: [ 'description' ]
+          },
+
+          params: Object,
+          scrollTarget: {
+            type: Object,
+            value: 'document'
+          }
+          // page: Number,
+          // totalCount: Number
+        };
+      }
+
+      _computeItemClass(item) {
+        return item.class ? item.class : "item pad";
+      }
+
+      _computeItemStyle(item) {
+        return item.style ? item.style : "var(--things-white-background-color);";  // FIXME
+      }
+
+      _buildTitle(item) {
+        return item[this.titleField];
+      }
+
+      _buildInfo(item) {
+        var infoValues = [];
+        var infoFields = this.infoFields;
+        for (var i in infoFields) {
+          if (item.hasOwnProperty(infoFields[i])) {
+            infoValues.push(item[infoFields[i]]);
+          }
+        }
+
+        var info = infoValues.join(', ');
+        return info;
+      }
+
+      _itemsChanged(items) {
+        // Clear the lower threshold so we can load more data when the user scrolls down again.
+        this.$.scrollTheshold.clearTriggers();
+      }
+
+      _loadMoreData() {
+        var event = new CustomEvent('next-page');
+        this.dispatchEvent(event);
+      }
+
+      _tapItem(e) { // show detail info
+        var currentTarget = e.currentTarget;
+        var recordObj = currentTarget.recordObj;
+
+        var event = new CustomEvent('item-selected', {detail: recordObj, bubbles: true, composed: true});
+        this.dispatchEvent(event);
+      }
+
+      clear() {
+        this.items = null;
+      }
+    }
+
+    customElements.define(ThingsList.is, ThingsList);
+  </script>
+</dom-module>

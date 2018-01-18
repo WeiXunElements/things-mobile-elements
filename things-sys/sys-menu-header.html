@@ -1,0 +1,107 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+
+<link rel="import" href="./com-view.html">
+<!-- <script src="../mixins/mixin-builder.js"></script> -->
+<!-- <script src="../mixins/com-view.js"></script> -->
+
+<dom-module id="sys-menu-header">
+    <template>
+        <style>
+           div.app-name{
+               height:45px;
+               text-align:center;
+               line-height:45px;
+           }
+           div.app-extra-btns{
+               background-color:var(--things-sidebar-background-color);
+               padding:9px 10px 0 0;
+               height:32px;
+               font-size:15px;
+           }
+           div.app-extra-btns paper-icon-button{
+               padding:0 !important;margin-left:10px;
+               width:23px;height:23px;
+               float:right;
+           }
+           div.app-extra-btns div paper-icon-button{
+               margin-left:0;margin-right:4px;
+               float:left
+           }
+           .app-extra-btns div{
+                float:left;
+                display:inline-block;
+                margin-left:10px;
+           }
+        </style>
+
+        <iron-localstorage 
+            name="setting.user"
+            value="{{user}}">
+        </iron-localstorage>
+
+        <!-- <paper-icon-button on-tap="_tapFooter" icon="home"></paper-icon-button> -->
+        <div class="app-name">X-MOBILE</div>
+        <div class="app-extra-btns">
+            <div>
+                <paper-icon-button id="me" icon="account-circle"></paper-icon-button>
+                <label>[[user.login]]</label>
+            </div>
+            <paper-icon-button id="contacts" on-tap="_tapIcon" icon="perm-phone-msg"></paper-icon-button>
+            <paper-icon-button id="setting" on-tap="_tapIcon" icon="settings"></paper-icon-button>
+            <paper-icon-button id="notifications" on-tap="_tapIcon" icon="social:notifications-none"></paper-icon-button>
+            <dom-if if="[[newNotiCount]]">
+                <tempalte>
+                    <paper-badge for="notifications" label="[[newNotiCount]]"></paper-badge>
+                </tempalte>
+            </dom-if>
+
+            <paper-icon-button id="refresh" on-tap="_tapRefresh" icon="refresh"></paper-icon-button>
+        </div>
+    </template>
+
+    <script>
+        class SysMenuHeader extends customElements.get('com-view') {
+            static get is() { return 'sys-menu-header'; }
+
+            static get properties() {
+                return {
+                    route: {
+                        type: String,
+                        notify: true
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+            }
+
+            _tapIcon(e) {
+                var target = e.currentTarget;
+                var id = target.id;
+
+                this.route = {
+                    prefix: '',
+                    path: `/${id}`
+                };
+
+                this.dispatchEvent(new CustomEvent('tap-header-icon'));
+            }
+
+            _tapRefresh(e) {
+                window.location.reload();
+            }
+        }
+
+        window.customElements.define(SysMenuHeader.is, SysMenuHeader);
+    </script>
+</dom-module>
