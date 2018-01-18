@@ -1,0 +1,46 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<script>
+    window.Things = window.Things || {};
+
+    Things.ParamsBuilder = (superClass) => {
+        return class ParamsBuilderMixin extends superClass {
+            queryBuilder(formFields, formData, ...chunks) {
+                if (!formFields || !formData) {
+                    return;
+                }
+
+                var fields = this.formFields.filter((field) => {
+                    return field.name;
+                });
+
+                var params = [];
+                fields.forEach((field) => {
+                    let operator = field.getAttribute('operator') || 'contains';
+                    let fieldName = field.name;
+                    if (formData[fieldName]) {
+                        params.push({ name: fieldName, operator: operator, value: formData[fieldName] });
+                    }
+                });
+
+                var queryObj = {};
+                chunks.forEach((chunk) => {
+                    Object.assign(queryObj, chunk);
+                });
+
+                var props = queryObj.keys;
+                if (props) {
+                    props.forEach((prop) => {
+                        params.push({ name: prop, operator: 'eq', value: queryObj[prop] });
+                    });
+                }
+
+                // console.log(params);
+                return JSON.stringify(params);
+            }
+        }
+    };
+</script>

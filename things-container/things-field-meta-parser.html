@@ -1,0 +1,137 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<link rel="import" href="../things-input/things-combo-box.html">
+<link rel="import" href="../things-input/things-textfield.html">
+
+<script>
+    window.Things = window.Things || {};
+
+    Things.FieldMetaParser = (superClass) => {
+        return class FieldMetaParserMixin extends superClass {
+            constructor() {
+                super();
+            }
+
+            _createElement(meta) {
+                var newElement;
+                var { label, type, resourceRef, resourceType, name, userData, readonly,
+                    hidden, resourceUrl, operator, displayField, valueField, selectFields } = meta;
+
+                // console.log(type);
+
+                switch (type) {
+                    // case 'code-combo':
+                    // 	newElement = document.createElement('things-selector');
+                    // 	newElement.setAttribute('resource-name', resourceName);
+                    // 	newElement.setAttribute('name', name);
+                    // 	newElement.setAttribute('label', label);
+                    // 	newElement.setAttribute('display-field', 'description');
+                    // 	newElement.setAttribute('value-field', 'name');
+                    // 	newElement.setAttribute('type', 'CODE');
+                    // 	break;
+                    // case 'resource-combo':
+                    // case 'resource-selector':
+                    // 	newElement = document.createElement('things-selector');
+                    // 	newElement.setAttribute('resource-name', resourceName);
+                    // 	newElement.setAttribute('name', name);
+                    // 	newElement.setAttribute('label', label);
+                    // 	newElement.setAttribute('display-field', 'name');
+                    // 	newElement.setAttribute('value-field', 'id');
+                    // 	newElement.setAttribute('type', 'ENTITY');
+                    // 	break;
+                    case 'combobox':
+                    case 'combo-box':
+                    case 'code-combo':
+                    case 'resource-combo':
+                    case 'resource-selector':
+                    case 'things-combo-box':
+                        newElement = document.createElement('things-combo-box');
+                        if (selectFields) {
+                            newElement.setAttribute('select-fields', JSON.stringify(selectFields));
+                        }
+                        newElement.setAttribute('resource-type', resourceType);
+                        newElement.setAttribute('resource-ref', resourceRef);
+                        newElement.setAttribute('name', name);
+                        newElement.setAttribute('label', label);
+                        // newElement.setAttribute('display-field', displayField);
+                        // newElement.setAttribute('value-field', valueField);
+                        break;
+
+                    case 'date-picker':
+                        newElement = document.createElement('vaadin-date-picker');
+                        newElement.setAttribute('name', name);
+                        newElement.setAttribute('label', label);
+
+                        if (userData) {
+                            if (userData.min) {
+                                newElement.setAttribute('min-date', userData.min);
+                            }
+                            if (userData.max) {
+                                newElement.setAttribute('max-date', userData.max);
+                            }
+                        }
+
+                        break;
+
+                    case 'number':
+                        newElement = document.createElement('things-input');
+                        newElement.setAttribute('name', name);
+                        // newElement.setAttribute('placeholder', fieldLabel);
+                        newElement.setAttribute('label', label);
+                        newElement.setAttribute('type', 'number');
+                        newElement.setAttribute('error', 'Input is not a number!');
+                        newElement.setAttribute('min', 0);
+                        break;
+
+                    case 'checkbox':
+                        newElement = document.createElement('paper-checkbox');
+                        newElement.setAttribute('name', name);
+                        newElement.innerHtml = label;
+                        if (!value) {
+                            newElement.setAttribute('checked', true);
+                        }
+                        break;
+                    default:
+                        newElement = document.createElement('things-input');
+                        newElement.setAttribute('name', name);
+                        newElement.setAttribute('label', label);
+                }
+
+                // if(!meta.searchForm && meta.userData) {
+                // 	if(meta.userData.required && !newElement.getAttribute('error-message')) {
+                // 		newElement.setAttribute('required', true);
+                // 		newElement.setAttribute('error-message', Things.DataGlobal.t('text.required_error'));
+                // 		newElement.setAttribute('auto-validate', true);
+                // 	}
+                // }
+
+                if (operator) {
+                    newElement.setAttribute('operator', operator);
+                }
+
+                if (hidden) {
+                    newElement.setAttribute('hidden', hidden);
+                }
+                if (readonly) {
+                    newElement.setAttribute('readonly', readonly);
+                }
+
+                newElement.setAttribute('class', 'flex style-scope things-form');
+                if (meta.type != 'empty') {
+                    newElement.tabIndex = meta.tabindex >= 0 ? meta.tabindex : -1;
+                }
+
+                // if (!newElement.value) {
+                //     this.setFieldData(newElement, default);	// TODO
+                // }
+
+                return newElement;
+            }
+        }
+    };
+</script>
