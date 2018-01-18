@@ -1,0 +1,42 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="things-screen-orientation">
+    <template>
+        <style>
+        </style>
+    </template>
+
+    <script>
+        class ThingsScreenOrientation extends Polymer.Element {
+            static get is() { return 'things-screen-orientation'; }
+
+            static get properties() {
+                return {
+                };
+            }
+
+            connectedCallback() {
+                if (screen) {
+                    this.addEventListener("orientationchange", _handleOrientationChange);
+                }
+            }
+
+            disconnectedCallback() {
+                if (screen) {
+                    this.removeEventListener("orientationchange", _handleOrientationChange);
+                }
+            }
+
+            _handleOrientationChange() {
+                var e = new CustomEvent('orientation-change');
+                this.dispatchEvent(e);
+            }
+        }
+
+        window.customElements.define(ThingsScreenOrientation.is, ThingsScreenOrientation);
+    </script>
+</dom-module>

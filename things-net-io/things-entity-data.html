@@ -1,0 +1,78 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../things-sys/sys-ajax.html">
+
+<dom-module id="things-entity-data">
+  <template>
+    <style>
+      
+    </style>
+
+    <sys-ajax
+      auto
+      method="GET"
+      curl="[[entityUrl]]"
+      last-response="{{entityInfo}}">
+    </sys-ajax>
+
+    <sys-ajax
+      auto
+      method="GET"
+      curl="[[searchDetailUrl]]"
+      last-response="{{detailInfo}}">
+    </sys-ajax>
+  </template>
+
+  <script>
+
+    class ThingsEntityData extends Polymer.Element {
+
+      static get is() { return 'things-entity-data'; }
+
+      static get properties() {
+        return {
+          entityId: String,
+          resourceUrl: String,
+          entityUrl: {
+            type: String,
+            computed: '_computeEntityUrl(resourceUrl, entityId)'
+          },
+          entityInfo: {
+            type: Object,
+            notify: true
+          },
+          detailUrl: String,
+          searchDetailUrl: {
+            type: String,
+            computed: '_computeSearchDetailUrl(detailUrl, entityId)'
+          },
+          detailInfo: {
+            type: Object,
+            notify: true
+          }
+        };
+      }
+
+      _computeEntityUrl(resourceUrl, entityId) {
+        if(!resourceUrl || !entityId) {
+          return;
+        }
+
+        return `/${resourceUrl}/${entityId}`;
+      }
+
+      _computeSearchDetailUrl(detailUrl, entityId) {
+        if(!detailUrl || !entityId) {
+          return;
+        }
+
+        return '/' + detailUrl.replace(':id', entityId);
+      }
+    }
+
+    window.customElements.define(ThingsEntityData.is, ThingsEntityData);
+  </script>
+</dom-module>

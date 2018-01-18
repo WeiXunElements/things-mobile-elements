@@ -1,0 +1,60 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="com-view">
+    <template>
+        <style></style>
+    </template>
+
+    <script>
+        class ComView extends Polymer.Element {
+            static get is() { return 'com-view'; }
+
+            static get properties() {
+                return {
+                    visible: {
+                        type: Boolean,
+                        observer: '_visibleChanged'
+                    }
+                };
+            }
+
+            constructor() {
+                super();
+                
+                if (window.t) {
+                    this.t = window.t;
+                } else {
+                    console.warn('localize function t() undefined');
+                }
+            }
+
+            _visibleChanged(visible) {
+                if (visible) {
+                    
+                } else {
+                    
+                }
+            }
+
+            isEmpty(value) {
+                return value ? false : true;
+            }
+
+            isNotEmpty(value) {
+                return value ? true : false;
+            }
+
+            isGreaterThenZero(value) {
+                return value > 0 ? true : false;
+            }
+        }
+
+        customElements.define(ComView.is, ComView);
+    </script>
+
+</dom-module>
