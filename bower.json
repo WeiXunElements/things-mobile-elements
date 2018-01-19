@@ -28,8 +28,7 @@
     "things-scene-half-roundrect": "ThingsElements/things-scene-half-roundrect#^2.0.3",
     "things-scene-gauge": "ThingsElements/things-scene-gauge#^2.0.7",
     "things-scene-form": "ThingsElements/things-scene-form#^0.1.16",
-    "things-scene-progressbar": "ThingsElements/things-scene-progressbar#^2.0.4",
-    "web-component-tester": "Polymer/web-component-tester#^6.5.0"
+    "things-scene-progressbar": "ThingsElements/things-scene-progressbar#^2.0.4"
   },
   "version": "v2.3.0"
 }
