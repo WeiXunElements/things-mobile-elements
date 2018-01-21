@@ -75,10 +75,8 @@ Copyright © HatioLab Inc. All rights reserved.
     </template>
 
     <script>
-        class ThingsFieldsForm extends Polymer.mixinBehaviors([Things.FieldMetaParser, Things.ParamsBuilder], Polymer.Element) {
-
-        // class ThingsFieldsForm extends mix(Polymer.Element)
-        //     .with(Things.FieldMetaParser, Things.ParamsBuilder) {
+        class ThingsFieldsForm extends mix(Polymer.Element)
+            .with(Things.FieldMetaParser, Things.ParamsBuilder) {
             static get is() { return 'things-fields-form'; }
 
             static get properties() {
