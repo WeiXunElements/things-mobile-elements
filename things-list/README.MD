@@ -22,8 +22,6 @@ things-list
 数据展示列表
 ``` HTML
 <things-list
-    has-detail
-    page="[[page]]"
     items="[[items]]"
     title-field="[[titleField]]"
     info-fields="[[infoFields]]"
