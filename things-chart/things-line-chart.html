@@ -92,22 +92,16 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         /* override from things-chart */
-        _drawChart() {
+        _draw() {
             if (this.chart) {
                 this.chart.destroy();
             }
 
             var canvas = this.$.canvas;
             var ctx = canvas.getContext("2d");
-            // ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            this.chartCalData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
-            if (!this.chartCalData) {
-                return;
-            }
-            
             this.chart = Chart.Line(ctx, {
-                data: this.chartCalData,
+                data: this.chartData,
                 options: this.options
             });
         }

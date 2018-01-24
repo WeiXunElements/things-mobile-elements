@@ -40,10 +40,10 @@ Copyright © HatioLab Inc. All rights reserved.
                     isStacked: Boolean,
                     borderWidth: Number,
                     legendPos: String,
-                    chartCalData: {
-                        type: Object,
-                        readonly: true
-                    },
+                    // chartCalData: {
+                    //     type: Object,
+                    //     readonly: true
+                    // },
                     chartData: {
                         type: Object,
                         observer: '_chartDataChanged'
@@ -64,54 +64,64 @@ Copyright © HatioLab Inc. All rights reserved.
             }
 
             _columnsChanged(columns) {
-                // this._drawChart();
+                // this.redraw();
             }
 
             _rowsChanged(rows) {
-                this._drawChart();
+                this.redraw();
                 // this._reloadData(rows);
             }
 
             _handleResize(e) {
                 // console.log(e);
-                this._drawChart();
+                this.redraw();
             }
 
-            _drawChart() {
+            // drawChart() {
+            //     if (this.chart) {
+            //         this.chart.destroy();
+            //     }
+
+            //     var canvas = this.$.canvas;
+            //     var ctx = canvas.getContext("2d");
+            //     // ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            //     this.chartCalData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
+            //     if (!this.chartCalData) {
+            //         return;
+            //     }
+
+            //     this.chart = new Chart(ctx, {
+            //         type: this.type,
+            //         data: this.chartCalData,
+            //         options: this.options
+            //     });
+            // }
+
+            redraw() {
+                this.chartData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
+            }
+
+            _draw() {
                 if (this.chart) {
                     this.chart.destroy();
                 }
 
                 var canvas = this.$.canvas;
                 var ctx = canvas.getContext("2d");
-                // ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                this.chartCalData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
-                if (!this.chartCalData) {
-                    return;
-                }
 
                 this.chart = new Chart(ctx, {
                     type: this.type,
-                    data: this.chartCalData,
+                    data: this.chartData,
                     options: this.options
                 });
             }
 
             // need to override
             _chartDataChanged(chartData) {
-                if (this.chart) {
-                    this.chart.destroy();
+                if (chartData) {
+                    this._draw();
                 }
-
-                var canvas = this.$.canvas;
-                var ctx = canvas.getContext("2d");
-
-                this.chart = new Chart(ctx, {
-                    type: this.type,
-                    data: chartData,
-                    options: this.options
-                });
             }
 
             _buildChartData(columns, backgroundColors, borderColors, rows, isStacked) {
@@ -178,24 +188,24 @@ Copyright © HatioLab Inc. All rights reserved.
                 return { labels, datasets };
             }
 
-            _reloadData(rows) {
-                console.log(rows);
-                var dataMap = new Map(rows);
-                var datasets = this.chartCalData.datasets;
-                datasets.forEach((dataset, datasetIdx) => {
-                    let colValues = [];
-                    dataMap.forEach((values, key) => {
-                        colValues.push(values[datasetIdx] || values);
-                    });
+            // _reloadData(rows) {
+            //     console.log(rows);
+            //     var dataMap = new Map(rows);
+            //     var datasets = this.chartCalData.datasets;
+            //     datasets.forEach((dataset, datasetIdx) => {
+            //         let colValues = [];
+            //         dataMap.forEach((values, key) => {
+            //             colValues.push(values[datasetIdx] || values);
+            //         });
 
-                    dataset.data = colValues;
-                });
+            //         dataset.data = colValues;
+            //     });
 
-                // console.log(datasets);
-                // console.log('_reloadData');
-                // console.log(this.chartCalData.datasets);
-                this.chart.update();
-            }
+            //     // console.log(datasets);
+            //     // console.log('_reloadData');
+            //     // console.log(this.chartCalData.datasets);
+            //     this.chart.update();
+            // }
 
             /**
              * 
