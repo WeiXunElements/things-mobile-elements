@@ -69,34 +69,12 @@ Copyright © HatioLab Inc. All rights reserved.
 
             _rowsChanged(rows) {
                 this.redraw();
-                // this._reloadData(rows);
             }
 
             _handleResize(e) {
                 // console.log(e);
                 this.redraw();
             }
-
-            // drawChart() {
-            //     if (this.chart) {
-            //         this.chart.destroy();
-            //     }
-
-            //     var canvas = this.$.canvas;
-            //     var ctx = canvas.getContext("2d");
-            //     // ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            //     this.chartCalData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
-            //     if (!this.chartCalData) {
-            //         return;
-            //     }
-
-            //     this.chart = new Chart(ctx, {
-            //         type: this.type,
-            //         data: this.chartCalData,
-            //         options: this.options
-            //     });
-            // }
 
             redraw() {
                 this.chartData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
@@ -187,25 +165,6 @@ Copyright © HatioLab Inc. All rights reserved.
                 // console.log(datasets);
                 return { labels, datasets };
             }
-
-            // _reloadData(rows) {
-            //     console.log(rows);
-            //     var dataMap = new Map(rows);
-            //     var datasets = this.chartCalData.datasets;
-            //     datasets.forEach((dataset, datasetIdx) => {
-            //         let colValues = [];
-            //         dataMap.forEach((values, key) => {
-            //             colValues.push(values[datasetIdx] || values);
-            //         });
-
-            //         dataset.data = colValues;
-            //     });
-
-            //     // console.log(datasets);
-            //     // console.log('_reloadData');
-            //     // console.log(this.chartCalData.datasets);
-            //     this.chart.update();
-            // }
 
             /**
              * 
