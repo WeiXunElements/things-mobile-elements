@@ -1,0 +1,82 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../iron-list/iron-list.html">
+<link rel="import" href="./things-board-item.html">
+
+<dom-module id="things-info-board">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <!-- <div>
+      <dom-repeat items="[[rows]]" as="row">
+        <template>
+          <div style="display:inline-flex">
+            <dom-repeat items="[[row]]" as="item">
+              <template>
+                  <div>[[item]]</div>
+              </template>
+            </dom-repeat>
+          </div>
+        </template>
+      </dom-repeat>
+    </div> -->
+
+    <p style="white-space: pre-line;">[[rows]]</p>
+
+  </template>
+
+  <script>
+    class ThingsInfoBoard extends Polymer.Element {
+      static get is() { return 'things-info-board'; }
+
+      static get properties() {
+        return {
+          column: {
+            type: Number,
+            value: 2
+          },
+          rows: {
+            type: Array,
+            computed: '_computeRows(data)'
+          },
+          data: Object
+        };
+      }
+
+      _computeRows(data) {
+        if (!data) {
+          return;
+        }
+
+        // var rows = [];
+        // var row = [];
+        // var column = this.column;
+        // Object.keys(data).forEach((key, idx) => {
+        //   row.push(`${key}: ${data[key]}`);
+
+        //   if ((idx + 1) % column === 0 && row.length > 0) {
+        //     rows.push(JSON.parse(JSON.stringify(row)));
+        //     row = [];
+        //   }
+        // });
+
+        var rows = '';
+        Object.keys(data).forEach((key, idx) => {
+          rows += `${key}: ${data[key]}\n`;
+        });
+
+        return rows;
+      }
+    }
+
+    customElements.define(ThingsInfoBoard.is, ThingsInfoBoard);
+  </script>
+</dom-module>

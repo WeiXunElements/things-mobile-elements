@@ -1,0 +1,79 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="./things-board-item.html">
+
+<dom-module id="things-pattern-board">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <div>
+      <dom-repeat items="[[rows]]" as="row">
+        <template>
+          <div style="display:inline-flex">
+            <dom-repeat items="[[row]]" as="item">
+              <template>
+                <things-board-item value-obj="[[item]]"></things-board-item>
+              </template>
+            </dom-repeat>
+          </div>
+        </template>
+      </dom-repeat>
+    </div>
+
+  </template>
+
+  <script>
+    class ThingsPatternBoard extends Polymer.Element {
+      static get is() { return 'things-pattern-board'; }
+
+      static get properties() {
+        return {
+          rowUnit: {
+            type: Number,
+            value: 5
+          },
+          totalUnit: {
+            type: Number,
+            value: 20
+          },
+          rows: {
+            type: Array,
+            computed: '_computeRows(data)'
+          },
+          data: Array
+        };
+      }
+
+      _computeRows(data) {
+        if (!data) {
+          return;
+        }
+
+        var rows = [];
+        let row = [];
+        var rowUnit = this.rowUnit;
+        data.forEach((item, idx) => {
+          row.push(item);
+
+          if ((idx + 1) % rowUnit === 0 && row.length > 0) {
+            rows.push(JSON.parse(JSON.stringify(row)));
+            row = [];
+          }
+        });
+
+        console.log(rows);
+        return rows;
+      }
+    }
+
+    customElements.define(ThingsPatternBoard.is, ThingsPatternBoard);
+  </script>
+</dom-module>

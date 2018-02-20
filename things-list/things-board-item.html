@@ -1,0 +1,71 @@
+<!--
+@license
+Copyright © HatioLab Inc. All rights reserved.
+-->
+
+<link rel="import" href="../../polymer/polymer-element.html">
+
+<dom-module id="things-board-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .empty {
+        white-space: pre-line;
+      }
+
+      .rect {
+        white-space: pre-line;
+      }
+
+      .circle {
+        white-space: pre-line;
+      }
+    </style>
+
+    <p class="[[style]]">[[value]]</p>
+
+  </template>
+
+  <script>
+    class ThingsBoardItem extends Polymer.Element {
+      static get is() { return 'things-board-item'; }
+
+      static get properties() {
+        return {
+          style: {
+            type: String,
+            computed: '_computeStyle(type)'
+          },
+          type: {
+            type: String,
+            value: 'rect' // rect, circle
+          },
+          valueObj: Object,
+          value: {
+            type: Object,
+            computed: '_computeValue(valueObj)'
+          }
+        };
+      }
+
+      _computeStyle(type) {
+        return type;
+      }
+
+      _computeValue(valueObj) {
+        var values = [];
+
+        Object.keys(valueObj).forEach((prop) => {
+          values.push(`${prop}: ${valueObj[prop]}`);
+        });
+
+        return values.join('\n');
+      }
+    }
+
+    customElements.define(ThingsBoardItem.is, ThingsBoardItem);
+  </script>
+</dom-module>
