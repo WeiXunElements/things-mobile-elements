@@ -54,10 +54,10 @@ Copyright © HatioLab Inc. All rights reserved.
 					resourceRef: String,
 					label: String,
 					name: String,
-                    curl: {
-                        type: String,
-                        computed: '_computeCurl(resourceType, resourceRef)'
-                    },
+					curl: {
+							type: String,
+							computed: '_computeCurl(resourceType, resourceRef)'
+					},
 					selectFields: {
 						type: Array,
 						value: [ 'id', 'name', 'description' ]
@@ -111,12 +111,12 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			connectedCallback() {
 				// console.log('connectedCallback');
-                super.connectedCallback();
+				super.connectedCallback();
 			}
 
 			disconnectedCallback() {
-                super.disconnectedCallback();
-            }
+				super.disconnectedCallback();
+			}
             
 			_computeCurl(resourceType, resourceRef) {
 				var url = '';
@@ -156,7 +156,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				}
 			}
 
-            _dataChanged(data) {
+			_dataChanged(data) {
 				if (!data) {
 					return;
 				}
