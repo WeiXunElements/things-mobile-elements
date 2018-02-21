@@ -66,6 +66,9 @@ Copyright © HatioLab Inc. All rights reserved.
           if ((idx + 1) % rowUnit === 0 && row.length > 0) {
             rows.push(JSON.parse(JSON.stringify(row)));
             row = [];
+          } else if (idx + 1 === data.length) {
+            rows.push(JSON.parse(JSON.stringify(row)));
+            row = [];
           }
         });
 

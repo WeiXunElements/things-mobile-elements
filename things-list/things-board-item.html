@@ -12,8 +12,27 @@ Copyright © HatioLab Inc. All rights reserved.
         display: block;
       }
 
-      .empty {
+      /* .empty {
+        background-color: gray;
+      }
+      .full {
+        background-color: green;
+      }
+      .noti {
+        background-color: yellow;
+      } */
+
+      .content {
         white-space: pre-line;
+      }
+      :host([state=NOTI]) .content {
+        background-color: yellow;
+      }
+      :host([state=EMPTY]) .content {
+        background-color: gray;
+      }
+      :host([state=FULL]) .content {
+        background-color: green;
       }
 
       .rect {
@@ -25,7 +44,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    <p class="[[style]]">[[value]]</p>
+    <p>[[value]]</p>
 
   </template>
 
@@ -38,6 +57,11 @@ Copyright © HatioLab Inc. All rights reserved.
           style: {
             type: String,
             computed: '_computeStyle(type)'
+          },
+          state: {
+            type: String,
+            value: 'EMPTY',  // NOTI, EMPTY, FULL
+            computed: '_computeState(value)'
           },
           type: {
             type: String,
@@ -63,6 +87,14 @@ Copyright © HatioLab Inc. All rights reserved.
         });
 
         return values.join('\n');
+      }
+
+      _computeState(value) {
+        if (value) {
+          return 'FULL';
+        } else {
+          return 'EMPTY';
+        }
       }
     }
 
