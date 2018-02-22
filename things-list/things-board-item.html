@@ -10,28 +10,28 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
+        width: 100px;
+        height: 80px;
       }
 
-      /* .empty {
-        background-color: gray;
+      p {
+        width: 100%;
+        height: 100%;
       }
-      .full {
-        background-color: green;
-      }
-      .noti {
-        background-color: yellow;
-      } */
 
       .content {
         white-space: pre-line;
       }
-      :host([state=NOTI]) .content {
+
+      p:lang(NOTI) {
         background-color: yellow;
       }
-      :host([state=EMPTY]) .content {
+
+      p:lang(EMPTY) {
         background-color: gray;
       }
-      :host([state=FULL]) .content {
+
+      p:lang(FULL) {
         background-color: green;
       }
 
@@ -44,7 +44,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    <p>[[value]]</p>
+    <p id="content" lang="[[state]]" class=".content">[[value]]</p>
 
   </template>
 
@@ -54,23 +54,21 @@ Copyright © HatioLab Inc. All rights reserved.
 
       static get properties() {
         return {
+          type: {
+            type: String,
+            value: 'rect' // rect, circle
+          },
           style: {
             type: String,
             computed: '_computeStyle(type)'
           },
           state: {
             type: String,
-            value: 'EMPTY',  // NOTI, EMPTY, FULL
-            computed: '_computeState(value)'
+            value: 'EMPTY'  // NOTI, EMPTY, FULL
           },
-          type: {
-            type: String,
-            value: 'rect' // rect, circle
-          },
-          valueObj: Object,
-          value: {
+          valueObj: {
             type: Object,
-            computed: '_computeValue(valueObj)'
+            observer: '_valueObjChanged'
           }
         };
       }
@@ -79,22 +77,22 @@ Copyright © HatioLab Inc. All rights reserved.
         return type;
       }
 
-      _computeValue(valueObj) {
+      _valueObjChanged(valueObj) {
         var values = [];
+        var keys = Object.keys(valueObj);
 
-        Object.keys(valueObj).forEach((prop) => {
-          values.push(`${prop}: ${valueObj[prop]}`);
-        });
-
-        return values.join('\n');
-      }
-
-      _computeState(value) {
-        if (value) {
-          return 'FULL';
+        if (keys.length > 0) {
+          keys.forEach((prop) => {
+            values.push(`${prop}: ${valueObj[prop]} `);
+          });
         } else {
-          return 'EMPTY';
+          values.push(' ');
         }
+
+        var p = values.join('<br>');
+        this.shadowRoot.getElementById('content').innerHTML = p
+
+        this.state = p && p.trim().length > 0 ? 'FULL' : 'EMPTY';
       }
     }
 

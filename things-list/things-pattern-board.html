@@ -19,6 +19,7 @@ Copyright © HatioLab Inc. All rights reserved.
         <template>
           <div style="display:inline-flex">
             <dom-repeat items="[[row]]" as="item">
+              <!-- <div value="[[_computeTest(row)]]"></div> -->
               <template>
                 <things-board-item value-obj="[[item]]"></things-board-item>
               </template>
@@ -40,7 +41,7 @@ Copyright © HatioLab Inc. All rights reserved.
             type: Number,
             value: 5
           },
-          totalUnit: {
+          totalCount: {
             type: Number,
             value: 20
           },
@@ -57,6 +58,16 @@ Copyright © HatioLab Inc. All rights reserved.
           return;
         }
 
+        var totalCount = this.totalCount;
+        if (data.length > totalCount) {
+          data = data.slice(0, totalCount);
+        }
+
+        while (data.length < totalCount) {
+          data.push({});
+        }
+
+        console.log(data);
         var rows = [];
         let row = [];
         var rowUnit = this.rowUnit;
@@ -72,9 +83,12 @@ Copyright © HatioLab Inc. All rights reserved.
           }
         });
 
-        console.log(rows);
         return rows;
       }
+
+      // _computeTest(row) {
+      //   console.log(row);
+      // }
     }
 
     customElements.define(ThingsPatternBoard.is, ThingsPatternBoard);
