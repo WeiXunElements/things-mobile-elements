@@ -10,27 +10,29 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
+        height: 100%;
+        width: 100%;
       }
 
       p {
         width: 100%;
         height: 100%;
-      }
-
-      .content {
-        white-space: pre-line;
+        padding: 5px 10px;
+        border: 1px solid rgba(0, 0, 0, .1);
+        color: #fff;
+        font-size: 14px;
       }
 
       p:lang(NOTI) {
-        background-color: yellow;
+        background-color: #F27429;
       }
 
       p:lang(EMPTY) {
-        background-color: gray;
+        background-color: #B2BAC1;
       }
 
       p:lang(FULL) {
-        background-color: green;
+        background-color: #1DB78D;
       }
 
       .rect {
@@ -42,7 +44,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    <p id="content" lang="[[state]]" class=".content">[[value]]</p>
+    <p id="content" lang="[[state]]">[[value]]</p>
 
   </template>
 

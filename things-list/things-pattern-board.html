@@ -12,19 +12,32 @@ Copyright © HatioLab Inc. All rights reserved.
       :host {
         display: block;
       }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-auto-columns: 1fr;
+        grid-auto-rows: 1fr;
+        /* grid-template-rows: auto auto auto auto; */
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .item {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      /* things-board-item {
+        width: 20%
+      } */
     </style>
 
-    <div>
+    <div class="grid">
       <dom-repeat items="[[rows]]" as="row">
         <template>
-          <div style="display:inline-flex">
-            <dom-repeat items="[[row]]" as="item">
-              <!-- <div value="[[_computeTest(row)]]"></div> -->
-              <template>
-                <things-board-item value-obj="[[item]]"></things-board-item>
-              </template>
-            </dom-repeat>
-          </div>
+          <things-board-item value-obj="[[row]]"></things-board-item>
         </template>
       </dom-repeat>
     </div>
@@ -67,20 +80,20 @@ Copyright © HatioLab Inc. All rights reserved.
           data.push({});
         }
 
-        console.log(data);
+        // console.log(data);
         var rows = [];
         let row = [];
         var rowUnit = this.rowUnit;
         data.forEach((item, idx) => {
-          row.push(item);
+          rows.push(item);
 
-          if ((idx + 1) % rowUnit === 0 && row.length > 0) {
-            rows.push(JSON.parse(JSON.stringify(row)));
-            row = [];
-          } else if (idx + 1 === data.length) {
-            rows.push(JSON.parse(JSON.stringify(row)));
-            row = [];
-          }
+          // if ((idx + 1) % rowUnit === 0 && row.length > 0) {
+          //   rows.push(JSON.parse(JSON.stringify(row)));
+          //   row = [];
+          // } else if (idx + 1 === data.length) {
+          //   rows.push(JSON.parse(JSON.stringify(row)));
+          //   row = [];
+          // }
         });
 
         return rows;
