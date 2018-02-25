@@ -26,6 +26,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
+    [[title]]
     <div class="grid">
       <dom-repeat items="[[items]]" as="item">
         <template>
@@ -44,6 +45,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       static get properties() {
         return {
+          title: String,
           column: {
             type: Number,
             value: 2
