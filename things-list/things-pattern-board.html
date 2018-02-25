@@ -35,9 +35,9 @@ Copyright © HatioLab Inc. All rights reserved.
     </style>
 
     <div class="grid">
-      <dom-repeat items="[[rows]]" as="row">
+      <dom-repeat items="[[items]]" as="item">
         <template>
-          <things-board-item value-obj="[[row]]"></things-board-item>
+          <things-board-item value-obj="[[item]]" state="[[_computeState(index, nextToFillNo)]]"></things-board-item>
         </template>
       </dom-repeat>
     </div>
@@ -50,6 +50,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
       static get properties() {
         return {
+          continuous: Boolean,
+          nextToFillNo: Number,
           rowUnit: {
             type: Number,
             value: 5
@@ -58,15 +60,19 @@ Copyright © HatioLab Inc. All rights reserved.
             type: Number,
             value: 20
           },
-          rows: {
+          enableNoti: {
+            type: Boolean,
+            value: true
+          },
+          items: {
             type: Array,
-            computed: '_computeRows(data)'
+            computed: '_computeItems(data)'
           },
           data: Array
         };
       }
 
-      _computeRows(data) {
+      _computeItems(data) {
         if (!data) {
           return;
         }
@@ -77,31 +83,37 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         while (data.length < totalCount) {
-          data.push({});
+          data.push('');
         }
 
         // console.log(data);
-        var rows = [];
-        let row = [];
-        var rowUnit = this.rowUnit;
+        var items = [];
         data.forEach((item, idx) => {
-          rows.push(item);
-
-          // if ((idx + 1) % rowUnit === 0 && row.length > 0) {
-          //   rows.push(JSON.parse(JSON.stringify(row)));
-          //   row = [];
-          // } else if (idx + 1 === data.length) {
-          //   rows.push(JSON.parse(JSON.stringify(row)));
-          //   row = [];
-          // }
+          items.push(item);
         });
 
-        return rows;
+        return items;
       }
 
-      // _computeTest(row) {
-      //   console.log(row);
-      // }
+      _computeState(index, nextToFillNo) {
+        if (this.continuous) {
+          if (index < nextToFillNo) {
+            return 'FULL';
+          } else if (this.enableNoti && index === nextToFillNo) {
+            return 'NOTI';
+          } else {
+            return 'EMPTY';
+          }
+        }
+
+        // if (this.enableNoti && index === this.nextToFillNo) {
+        //   return 'NOTI';
+        // } else if (this.items[index] && Object.keys(this.items[index]).length > 0) {
+        //   return 'FULL';
+        // } else {
+        //   return 'EMPTY';
+        // }
+      }
     }
 
     customElements.define(ThingsPatternBoard.is, ThingsPatternBoard);

@@ -27,9 +27,9 @@ Copyright © HatioLab Inc. All rights reserved.
     </style>
 
     <div class="grid">
-      <dom-repeat items="[[rows]]" as="row">
+      <dom-repeat items="[[items]]" as="item">
         <template>
-          <div class="gridItem">[[row]]</div>
+          <div class="gridItem">[[item]]</div>
         </template>
       </dom-repeat>
     </div>
@@ -48,23 +48,23 @@ Copyright © HatioLab Inc. All rights reserved.
             type: Number,
             value: 2
           },
-          rows: {
+          items: {
             type: Array,
-            computed: '_computeRows(data)'
+            computed: '_computeItems(data)'
           },
           data: Object
         };
       }
 
-      _computeRows(data) {
+      _computeItems(data) {
         if (!data) {
           return;
         }
 
-        var rows = [];
+        var items = [];
         var column = this.column;
         Object.keys(data).forEach((key, idx) => {
-          rows.push(`${key}: ${data[key]}`);
+          items.push(`${key}: ${data[key]}`);
         });
 
         // var rows = '';
@@ -72,7 +72,7 @@ Copyright © HatioLab Inc. All rights reserved.
         //   rows += `${key}: ${data[key]}\n`;
         // });
 
-        return rows;
+        return items;
       }
     }
 

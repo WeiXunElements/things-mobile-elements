@@ -59,20 +59,20 @@ Copyright © HatioLab Inc. All rights reserved.
 
       _valueObjChanged(valueObj) {
         var values = [];
-        var keys = Object.keys(valueObj);
 
-        if (keys.length > 0) {
-          keys.forEach((prop) => {
-            values.push(`${prop}: ${valueObj[prop]} `);
-          });
+        if (typeof valueObj === 'object') {
+          let keys = Object.keys(valueObj);
+          if (keys.length > 0) {
+            keys.forEach((prop) => {
+              values.push(`${prop}: ${valueObj[prop]} `);
+            });
+          }
         } else {
-          values.push(' ');
+          values.push(valueObj);
         }
 
         var p = values.join('<br>');
-        this.shadowRoot.getElementById('content').innerHTML = p
-
-        this.state = p && p.trim().length > 0 ? 'FULL' : 'EMPTY';
+        this.shadowRoot.getElementById('content').innerHTML = p;
       }
 
       _stateChanged(state) {
