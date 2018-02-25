@@ -11,27 +11,17 @@ Copyright © HatioLab Inc. All rights reserved.
 
 <dom-module id="things-combo-box">
 	<template>
-		<sys-ajax
-			auto
-			disable-spinner
-			curl="[[curl]]"
-			select-fields="[[selectFields]]"
-			custom-params="[[queryParams]]"
-            last-response="{{data}}">
+		<style>
+			vaadin-combo-box {
+				width: 100%;
+			}
+		</style>
+		<sys-ajax auto disable-spinner curl="[[curl]]" select-fields="[[selectFields]]" custom-params="[[queryParams]]" last-response="{{data}}">
 		</sys-ajax>
-		
-		<vaadin-combo-box 
-			label="[[label]]"
-			items="[[items]]" 
-			name="[[name]]"
-			value="{{value}}" 
-			filter="{{filter}}"
-			readonly="[[readonly]]"
-			item-value-path="[[valuePath]]" 
-			item-label-path="[[labelPath]]"
-			allow-custom-value="[[allowCustomValue]]"
-			on-keyup="_handleKeyUp"
-			on-value-changed="_handleValueChanged">
+
+		<vaadin-combo-box label="[[label]]" items="[[items]]" name="[[name]]" value="{{value}}" filter="{{filter}}" readonly="[[readonly]]"
+		 item-value-path="[[valuePath]]" item-label-path="[[labelPath]]" allow-custom-value="[[allowCustomValue]]" on-keyup="_handleKeyUp"
+		 on-value-changed="_handleValueChanged">
 			<template>
 				<paper-item-body>
 					<div>[[item.name]]: [[item.description]]</div>
@@ -55,12 +45,12 @@ Copyright © HatioLab Inc. All rights reserved.
 					label: String,
 					name: String,
 					curl: {
-							type: String,
-							computed: '_computeCurl(resourceType, resourceRef)'
+						type: String,
+						computed: '_computeCurl(resourceType, resourceRef)'
 					},
 					selectFields: {
 						type: Array,
-						value: [ 'id', 'name', 'description' ]
+						value: ['id', 'name', 'description']
 					},
 					queryParams: Object,
 					valuePath: String,
@@ -117,7 +107,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			disconnectedCallback() {
 				super.disconnectedCallback();
 			}
-            
+
 			_computeCurl(resourceType, resourceRef) {
 				var url = '';
 				this.queryParams = {}
@@ -174,7 +164,7 @@ Copyright © HatioLab Inc. All rights reserved.
 				});
 
 				this.items = items;
-            }
+			}
 
 			_handleKeyUp(e) {
 				e.preventDefault();

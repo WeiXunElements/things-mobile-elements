@@ -10,31 +10,13 @@ Copyright © HatioLab Inc. All rights reserved.
     <style>
       :host {
         display: block;
-        height: 100%;
-        width: 100%;
-        padding: 0px;
-        border: 1px solid rgba(0, 0, 0, .1);
-        font-size: 14px;
       }
 
       p {
         /* width: 100%; */
-        /* height:100%; */
-        color: #fff;
-        padding: 5px;
+        /* height: 100%; */
+        padding: 0px;
       }
-
-      /* :host([state="NOTI"]) {
-        background-color: #F27429;
-      } */
-
-      /* :host([state="EMPTY"]) {
-        background-color: #B2BAC1;
-      } */
-
-      /* :host([state=FULL]) {
-        background-color: #1DB78D;
-      } */
 
       .rect {
         white-space: pre-line;
@@ -59,18 +41,14 @@ Copyright © HatioLab Inc. All rights reserved.
             type: String,
             value: 'rect' // rect, circle
           },
-          // style: {
-          //   type: String,
-          //   computed: '_computeStyle(type)'
-          // },
-          valueObj: {
-            type: Object,
-            observer: '_valueObjChanged'
-          },
           state: {
             type: String,
             value: 'EMPTY',  // NOTI, EMPTY, FULL
             observer: '_stateChanged'
+          },
+          valueObj: {
+            type: Object,
+            observer: '_valueObjChanged'
           }
         };
       }
@@ -95,7 +73,6 @@ Copyright © HatioLab Inc. All rights reserved.
         this.shadowRoot.getElementById('content').innerHTML = p
 
         this.state = p && p.trim().length > 0 ? 'FULL' : 'EMPTY';
-
       }
 
       _stateChanged(state) {
