@@ -92,6 +92,10 @@ Copyright © HatioLab Inc. All rights reserved.
                 return !value || readonly ? true : false;
             }
 
+            reset() {
+                this._clearValue();
+            }
+
             _clearValue() {
                 this.value = '';
             }
