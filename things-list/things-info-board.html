@@ -4,7 +4,6 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="./things-board-item.html">
 
 <dom-module id="things-info-board">
@@ -14,10 +13,16 @@ Copyright © HatioLab Inc. All rights reserved.
         display: block;
       }
 
+      .title {
+        height: 35px;
+        font-size: 15pt;
+      }
+
       .grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-auto-rows: auto;
+        height: calc(100% - 35px);
+        grid-template-columns: 50% 50%;
+        grid-auto-rows: 1fr;
       }
 
       .gridItem {
@@ -26,7 +31,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    [[title]]
+    <div class="title">[[title]]</div>
     <div class="grid">
       <dom-repeat items="[[items]]" as="item">
         <template>
