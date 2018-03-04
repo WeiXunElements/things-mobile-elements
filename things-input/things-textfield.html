@@ -99,6 +99,11 @@ Copyright © HatioLab Inc. All rights reserved.
             _clearValue() {
                 this.value = '';
             }
+
+            focus() {
+                this.shadowRoot.querySelector('paper-input').focus();
+                // this.shadowRoot.querySelector('paper-input').inputElement.inputElement.focus();
+            }
         }
 
         customElements.define(ThingsTextfield.is, ThingsTextfield);
