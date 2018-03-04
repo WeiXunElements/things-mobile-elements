@@ -62,7 +62,11 @@ Copyright © HatioLab Inc. All rights reserved.
           let keys = Object.keys(valueObj);
           if (keys.length > 0) {
             keys.forEach((prop) => {
-              values.push(`${prop}: ${valueObj[prop]} `);
+              if (typeof t === 'function') {
+                values.push(t(`text.${prop}`) + `: ${valueObj[prop]} `);
+              } else {
+                values.push(`${prop}: ${valueObj[prop]} `);
+              }
             });
           }
         } else {

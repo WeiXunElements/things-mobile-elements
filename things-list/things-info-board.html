@@ -72,6 +72,11 @@ Copyright © HatioLab Inc. All rights reserved.
         var column = this.column;
         Object.keys(data).forEach((key, idx) => {
           items.push(`${key}: ${data[key]}`);
+          if (typeof t === 'function') {
+            items.push(t(`label.${key}`) + `: ${data[key]} `);
+          } else {
+            items.push(`${key}: ${data[key]}`);
+          }
         });
 
         // var rows = '';
