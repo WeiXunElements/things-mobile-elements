@@ -26,7 +26,11 @@ Copyright © HatioLab Inc. All rights reserved.
     <div class="grid">
       <dom-repeat items="[[items]]" as="item">
         <template>
-          <things-board-item value-obj="[[item]]" state="[[_computeState(index, nextToFillNo)]]"></things-board-item>
+          <things-board-item 
+            value-obj="[[item]]" 
+            hide-field-count="[[hideFieldCount]]"
+            state="[[_computeState(index, nextToFillNo)]]">
+          </things-board-item>
         </template>
       </dom-repeat>
     </div>
@@ -41,6 +45,10 @@ Copyright © HatioLab Inc. All rights reserved.
         return {
           continuous: Boolean,
           nextToFillNo: Number,
+          hideFieldCount: {
+            type: Number,
+            value: 0
+          },
           rowUnit: {
             type: Number,
             value: 5

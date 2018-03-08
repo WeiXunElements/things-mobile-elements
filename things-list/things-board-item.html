@@ -48,6 +48,10 @@ Copyright © HatioLab Inc. All rights reserved.
           valueObj: {
             type: Object,
             observer: '_valueObjChanged'
+          },
+          hideFieldCount: {
+            type: Number,
+            value: 0
           }
         };
       }
@@ -74,6 +78,7 @@ Copyright © HatioLab Inc. All rights reserved.
           values.push(valueObj);
         }
 
+        values = values.slice(0, values.length - this.hideFieldCount);
         var p = values.join('<br>');
         this.shadowRoot.getElementById('content').innerHTML = p;
       }

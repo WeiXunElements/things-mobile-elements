@@ -59,7 +59,8 @@ Copyright © HatioLab Inc. All rights reserved.
             type: Array,
             computed: '_computeItems(data)'
           },
-          data: Object
+          data: Object,
+          skipEmpty: Boolean
         };
       }
 
@@ -69,9 +70,14 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         var items = [];
-        var column = this.column;
+        var me = this;
         Object.keys(data).forEach((key, idx) => {
-          items.push(`${key}: ${data[key]}`);
+          if (me.skipEmpty) {
+            if (!data[key]) {
+              return;
+            }
+          }
+
           if (typeof t === 'function') {
             items.push(t(`label.${key}`) + `: ${data[key]} `);
           } else {
