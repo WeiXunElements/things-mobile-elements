@@ -140,6 +140,10 @@ Copyright © HatioLab Inc. All rights reserved.
 				}
 			}
 
+			_initDefaultBaseUrl() {
+				this.baseUrl = window.CONST.BASE_URL;
+			}
+
 			_computeHeaders() {
 				if (window.globals) {
 					var locale = window.globals.locale;
