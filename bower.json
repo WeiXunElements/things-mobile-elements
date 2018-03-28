@@ -16,7 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^2.3.1",
+    "polymer": "Polymer/polymer#^2.6.0",
     "chart.js": "^2.7.1",
     "l2t-paper-slider": "^1.4.1",
     "app-layout": "PolymerElements/app-layout#^2.0.5",
