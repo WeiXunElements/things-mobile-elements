@@ -22,12 +22,12 @@ Copyright © HatioLab Inc. All rights reserved.
         <style>
             :host {
                 display: block;
-                background-color:#f1f1f1;
+                background-color: #f1f1f1;
                 border-bottom: 1px solid rgba(0, 0, 0, .1);
             }
 
             form {
-                padding:0 15px 15px 15px;
+                padding: 0 15px 15px 15px;
             }
 
             paper-fab {
@@ -48,8 +48,9 @@ Copyright © HatioLab Inc. All rights reserved.
                 padding: 0;
                 opacity: .5;
             }
-            paper-spinner-lite{
-                display:none;
+
+            paper-spinner-lite {
+                display: none;
             }
         </style>
 
@@ -58,11 +59,9 @@ Copyright © HatioLab Inc. All rights reserved.
 
         <paper-material elevation="0" class="layout horizontal flex">
             <paper-icon-button icon="[[arrowIcon]]" on-tap="_tapToggle" hidden$="[[hideIcon]]"></paper-icon-button>
-            
+
             <iron-collapse id="content" class="flex" opened>
-                <iron-form 
-                    id="form" 
-                    with-credentials>
+                <iron-form id="form" with-credentials>
                     <form>
                         <things-field-pager id="searchPager" fields="[[formFields]]">
                         </things-field-pager>
@@ -70,7 +69,7 @@ Copyright © HatioLab Inc. All rights reserved.
                     </form>
                 </iron-form>
             </iron-collapse>
-            
+
         </paper-material>
     </template>
 
@@ -172,7 +171,7 @@ Copyright © HatioLab Inc. All rights reserved.
             _tapFab(e) {
                 var params = this._buildParams();
                 var event = new CustomEvent(
-                    'tap-form-btn', 
+                    'tap-form-btn',
                     { detail: params, bubbles: true, composed: true });
                 this.dispatchEvent(event);
             }
