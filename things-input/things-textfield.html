@@ -38,7 +38,7 @@ Copyright © HatioLab Inc. All rights reserved.
             min="[[min]]"
             min="[[max]]"
             readonly="[[readonly]]"
-            always-float-label>
+            always-float-label="[[floatLabel]]">
             <dom-if if="[[icon]]">
                 <template>
                     <iron-icon 
@@ -74,6 +74,7 @@ Copyright © HatioLab Inc. All rights reserved.
                     value: {
                         notify: true
                     },
+                    floatLabel: Boolean,
                     label: String,
                     icon: String,
                     errorMessage: String,
