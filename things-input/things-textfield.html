@@ -11,52 +11,34 @@ Copyright © HatioLab Inc. All rights reserved.
 <dom-module id="things-textfield">
     <template>
         <style>
-            paper-input iron-icon{
-                --iron-icon-width:20px;
-                --iron-icon-height:20px;
-                margin-right:3px;
-                color:var(--paper-toast-background-color);
+            paper-input iron-icon {
+                --iron-icon-width: 20px;
+                --iron-icon-height: 20px;
+                margin-right: 3px;
+                color: var(--paper-toast-background-color);
             }
-            paper-icon-button{
-                width:20px;
-                height:20px;
-                padding:0;
-                color:#999
+
+            paper-icon-button {
+                width: 20px;
+                height: 20px;
+                padding: 0;
+                color: #999
             }
         </style>
 
-        <paper-input
-            name="[[name]]"
-            type="[[type]]"
-            label="[[label]]"
-            placeholder="[[placeholder]]"
-            value="{{value}}"
-            pattern="[[pattern]]"
-            error-message="[[errorMessage]]"
-            required="[[required]]"
-            auto-validate="[[autoValidate]]"
-            min="[[min]]"
-            min="[[max]]"
-            readonly="[[readonly]]"
-            always-float-label="[[floatLabel]]">
+        <paper-input name="[[name]]" type="[[type]]" label="[[label]]" placeholder="[[placeholder]]"
+            value="{{value}}" pattern="[[pattern]]" error-message="[[errorMessage]]"
+            required="[[required]]" auto-validate="[[autoValidate]]" min="[[min]]" min="[[max]]"
+            readonly="[[readonly]]">
             <dom-if if="[[icon]]">
                 <template>
-                    <iron-icon 
-                        icon="[[icon]]" 
-                        hidden$=[[!icon]] 
-                        slot="prefix">
+                    <iron-icon icon="[[icon]]" hidden$=[[!icon]] slot="prefix">
                     </iron-icon>
                 </template>
             </dom-if>
-            
-            <paper-icon-button 
-                hidden$=[[hideClear]]
-                slot="suffix" 
-                on-tap="_clearValue"
-                icon="clear"
-                alt="clear"
-                title="clear"
-                tabindex="-1">
+
+            <paper-icon-button hidden$=[[hideClear]] slot="suffix" on-tap="_clearValue" icon="clear"
+                alt="clear" title="clear" tabindex="-1">
             </paper-icon-button>
         </paper-input>
     </template>
@@ -74,7 +56,6 @@ Copyright © HatioLab Inc. All rights reserved.
                     value: {
                         notify: true
                     },
-                    floatLabel: Boolean,
                     label: String,
                     icon: String,
                     errorMessage: String,
@@ -87,6 +68,19 @@ Copyright © HatioLab Inc. All rights reserved.
                         computed: '_computeHideClear(value, readonly)'
                     }
                 }
+            }
+
+            connectedCallback() {
+                super.connectedCallback();
+
+                var style = document.createElement('style')
+                style.innerHTML = '.input-content.label-is-floating ::slotted(label),\n';
+                style.innerHTML += '.input-content.label-is-floating ::slotted(.paper-input-label) {\n';
+                style.innerHTML += '-webkit-transform: translateY(-95%) scale(0.95); \n';
+                style.innerHTML += 'transform: translateY(-95%) scale(0.95); \n';
+                style.innerHTML += 'width: 133 %; \n';
+                style.innerHTML += '@apply --paper-input-container-label-floating; \n}';
+                this.shadowRoot.querySelector('paper-input').shadowRoot.querySelector('paper-input-container').shadowRoot.appendChild(style);
             }
 
             _computeHideClear(value, readonly) {

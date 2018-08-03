@@ -13,22 +13,21 @@ Copyright © HatioLab Inc. All rights reserved.
 	<template>
 		<style>
 			paper-spinner-lite {
-				display:block !important;
+				display: block !important;
 				--paper-spinner-stroke-width: 2px;
 				--paper-spinner-color: var(--things-primary-background-color);
-				position: fixed !important;;
-				left:calc(50% - 25px);
-				top:calc(50% - 25px);
+				position: fixed !important;
+				;
+				left: calc(50% - 25px);
+				top: calc(50% - 25px);
 			}
-			:host{
-				position:absolute
+
+			:host {
+				position: absolute
 			}
 		</style>
 
-		<iron-localstorage
-			name="setting.baseUrl"
-			value="{{baseUrl}}"
-			on-iron-localstorage-load-empty="_initDefaultBaseUrl">
+		<iron-localstorage name="setting.baseUrl" value="{{baseUrl}}" on-iron-localstorage-load-empty="_initDefaultBaseUrl">
 		</iron-localstorage>
 
 		<dom-if if="[[!disableSpinner]]">
@@ -39,27 +38,15 @@ Copyright © HatioLab Inc. All rights reserved.
 
 		<dom-if if="[[hasToast]]">
 			<template>
-				<paper-toast 
-					class="fit-bottom"
-					text="[[toastMessage]]">
+				<paper-toast class="fit-bottom" text="[[toastMessage]]">
 				</paper-toast>
 			</template>
 		</dom-if>
 
-		<iron-ajax
-			id="ajax"
-			auto="[[auto]]"
-			url="[[url]]"
-			method="[[method]]"
-			with-credentials="[[withCredentials]]"
-			loading="{{loading}}"
-			params="[[params]]"
-			body="[[body]]"
-			headers="[[headers]]"
-			content-type="[[contentType]]"
-			last-response="{{lastResponse}}"
-			on-iron-ajax-response="_handleAjaxResponse"
-			on-iron-ajax-error="_handleAjaxError">
+		<iron-ajax id="ajax" auto="[[auto]]" url="[[url]]" method="[[method]]" with-credentials="[[withCredentials]]"
+		 loading="{{loading}}" params="[[params]]" body="[[body]]" headers="[[headers]]"
+		 content-type="[[contentType]]" last-response="{{lastResponse}}" on-iron-ajax-response="_handleAjaxResponse"
+		 on-iron-ajax-error="_handleAjaxError">
 		</iron-ajax>
 	</template>
 
@@ -114,7 +101,7 @@ Copyright © HatioLab Inc. All rights reserved.
 						notify: true,
 						observer: '_loadingChanged'
 					},
-					
+
 					/**
 					 * lastRequest's response.
 					 *
@@ -194,12 +181,11 @@ Copyright © HatioLab Inc. All rights reserved.
 					}
 				});
 
-				this.params = {};
-				this.params = Object.assign(this.params, customParams);
+				this.params = Object.assign({}, this.params || {}, customParams);
 
-				if (this.auto && this.url) {
-					this.generateRequest();
-				}
+				// if (this.auto && this.url) {
+				// 	this.generateRequest();
+				// }
 			}
 
 			generateRequest() {
@@ -221,21 +207,21 @@ Copyright © HatioLab Inc. All rights reserved.
 			_handleAjaxResponse(e, request) {
 				var response = request.xhr.response;
 				var event = new CustomEvent(
-						'sys-ajax-response',
-						{ detail: response, bubbles: true, composed: true });
+					'sys-ajax-response',
+					{ detail: response, bubbles: true, composed: true });
 
 				this.dispatchEvent(event);
 			}
 
-			_handleAjaxError(e, {request, error}) {
+			_handleAjaxError(e, { request, error }) {
 				var response = request.xhr.response;
-				
-				if(request.xhr.status == 401) {
-					let event = new CustomEvent('sys-unauthorized-session', { 
-							detail: response, 
-							bubbles: true, 
-							composed: true
-						});
+
+				if (request.xhr.status == 401) {
+					let event = new CustomEvent('sys-unauthorized-session', {
+						detail: response,
+						bubbles: true,
+						composed: true
+					});
 
 					this.dispatchEvent(event);
 
@@ -257,7 +243,7 @@ Copyright © HatioLab Inc. All rights reserved.
 					});
 
 					this.dispatchEvent(event);
-					
+
 					this.toastMessage = `${response.status}: ${response.msg}`;
 					this.showToast();
 				}

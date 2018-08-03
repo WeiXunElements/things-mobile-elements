@@ -16,12 +16,13 @@ Copyright © HatioLab Inc. All rights reserved.
 				width: 100%;
 			}
 		</style>
-		<sys-ajax auto disable-spinner curl="[[curl]]" select-fields="[[selectFields]]" custom-params="[[queryParams]]" last-response="{{data}}">
+		<sys-ajax role="loadData" auto=[[auto]] disable-spinner curl="[[curl]]" select-fields="[[selectFields]]"
+		 custom-params="[[customParams]]" last-response="{{data}}">
 		</sys-ajax>
 
-		<vaadin-combo-box label="[[label]]" items="[[items]]" name="[[name]]" value="{{value}}" filter="{{filter}}" readonly="[[readonly]]"
-		 item-value-path="[[valuePath]]" item-label-path="[[labelPath]]" allow-custom-value="[[allowCustomValue]]" on-keyup="_handleKeyUp"
-		 on-value-changed="_handleValueChanged">
+		<vaadin-combo-box label="[[label]]" items="[[items]]" name="[[name]]" value="{{value}}"
+		 filter="{{filter}}" readonly="[[readonly]]" item-value-path="[[valuePath]]" item-label-path="[[labelPath]]"
+		 allow-custom-value="[[allowCustomValue]]" on-keyup="_handleKeyUp" on-value-changed="_handleValueChanged">
 			<template>
 				<paper-item-body>
 					<div>[[item.name]]: [[item.description]]</div>
@@ -37,6 +38,10 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			static get properties() {
 				return {
+					auto: {
+						type: Boolean,
+						value: true
+					},
 					resourceType: {
 						type: String,	// ENTITY, CODE
 						observer: '_resourceTypeChanged'
@@ -52,13 +57,22 @@ Copyright © HatioLab Inc. All rights reserved.
 						type: Array,
 						value: ['id', 'name', 'description']
 					},
-					queryParams: Object,
+					_initParams: Object,
+					queryParams: {
+						type: Object,
+						observer: '_queryParamsChanged'
+					},
+					paramsNecessary: {
+						type: Boolean,
+						value: false
+					},
+					customParams: Object,
 					valuePath: String,
 					labelPath: String,
 					filter: String,
 					pageSize: {
 						type: Number,
-						value: 50
+						value: 200
 					},
 					/**
 					* lastRequest's response.
@@ -102,6 +116,13 @@ Copyright © HatioLab Inc. All rights reserved.
 			connectedCallback() {
 				// console.log('connectedCallback');
 				super.connectedCallback();
+
+				// FIXME
+				var style = document.createElement('style')
+				style.innerHTML = 'vaadin-text-field { display: block; ';
+				style.innerHTML += 'padding: 8px 0;';
+				style.innerHTML += '@apply--paper - input - container;}';
+				this.shadowRoot.querySelector('vaadin-combo-box').shadowRoot.appendChild(style);
 			}
 
 			disconnectedCallback() {
@@ -109,21 +130,26 @@ Copyright © HatioLab Inc. All rights reserved.
 			}
 
 			_computeCurl(resourceType, resourceRef) {
-				var url = '';
-				this.queryParams = {}
-				if (resourceType === 'CODE') {
-					this.pageSize = 500;
-					if (resourceRef) {
-						this.queryParams.name = resourceRef;
-					}
-					url += '/common_codes/show_by_name';
-				} else {
-					url += '/data/entity';
-					if (resourceRef) {
-						this.queryParams.name = resourceRef;
-					}
+				if (!resourceType || !resourceRef) {
+					return;
 				}
-				this.queryParams.limit = this.pageSize;
+
+				var url = '';
+				this._initParams = {};
+				this._initParams.name = resourceRef;
+				this._initParams.limit = this.pageSize;
+				this.customParams = Object.assign({}, this._initParams, this.customParams);
+				switch (resourceType) {
+					case 'CODE':
+						url = '/common_codes/show_by_name';
+						break;
+					case 'ENTITY':
+						url = '/data/entity';
+						break;
+					case 'SERVICE':
+						url = '/data/service';
+						break;
+				}
 
 				return url;
 			}
@@ -137,13 +163,45 @@ Copyright © HatioLab Inc. All rights reserved.
 			// }
 
 			_resourceTypeChanged(resourceType) {
-				if (resourceType === 'CODE') {
-					this.valuePath = 'name';
-					this.labelPath = 'description';
-				} else {
-					this.valuePath = 'id';
-					this.labelPath = 'name';
+				switch (resourceType) {
+					case 'CODE':
+						this.valuePath = this.valuePath || 'name';
+						this.labelPath = this.labelPath || 'description';
+						break;
+					case 'ENTITY':
+						this.valuePath = this.valuePath || 'id';
+						this.labelPath = this.labelPath || 'name';
+						break;
+					case 'SERVICE':
+						break;
 				}
+			}
+
+			_queryParamsChanged(queryParams) {
+				if (!queryParams) {
+					return;
+				}
+
+				var queryString = '';
+				if (queryParams instanceof Array) {
+					queryString = JSON.stringify(queryParams);
+				} else if (queryParams instanceof Object) {
+					var objString = [];
+					Object.keys(queryParams).forEach((key, idx) => {
+						objString.push({
+							name: key,
+							value: queryParams[key]
+						});
+					});
+
+					queryString = JSON.stringify(objString);
+				}
+
+				var params = { query: queryString };
+				this.customParams = Object.assign({}, this._initParams || {}, params);
+
+				// let ajax = this.shadowRoot.querySelector('[role=loadData]');
+				// ajax.generateRequest();
 			}
 
 			_dataChanged(data) {
@@ -156,11 +214,10 @@ Copyright © HatioLab Inc. All rights reserved.
 				var labelPath = this.labelPath;
 				var resourceType = this.resourceType;
 				data.items.forEach((item) => {
-					if (resourceType === 'CODE') {
-						items.push({ name: item[valuePath], description: item[labelPath] });
-					} else {
-						items.push({ id: item[valuePath], name: item[labelPath], description: item.description });
-					}
+					let obj = {};
+					obj[this.valuePath] = item[valuePath];
+					obj[this.labelPath] = item[labelPath];
+					items.push(obj);
 				});
 
 				this.items = items;
@@ -168,6 +225,10 @@ Copyright © HatioLab Inc. All rights reserved.
 
 			_handleKeyUp(e) {
 				e.preventDefault();
+
+				if (this.resourceType != 'ENTITY') {
+					return;
+				}
 
 				// Clear the timeout if it has already been set.
 				// This will prevent the previous task from executing
@@ -178,8 +239,8 @@ Copyright © HatioLab Inc. All rights reserved.
 
 				// Make a new timeout set to go off in 800ms
 				this.timeout = setTimeout((me) => {
-					var params = Object.assign({}, me.queryParams, { keyword: me.filter });
-					me.queryParams = params;
+					var params = Object.assign({}, me._initParams, me.queryParams, { keyword: me.filter });
+					me.customParams = params;
 				}, 800, this);
 			}
 
