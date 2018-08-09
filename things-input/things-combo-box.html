@@ -24,9 +24,13 @@ Copyright © HatioLab Inc. All rights reserved.
 		 filter="{{filter}}" readonly="[[readonly]]" item-value-path="[[valuePath]]" item-label-path="[[labelPath]]"
 		 allow-custom-value="[[allowCustomValue]]" on-keyup="_handleKeyUp" on-value-changed="_handleValueChanged">
 			<template>
-				<paper-item-body>
+				<!-- <paper-item-body>
 					<div>[[item.name]]: [[item.description]]</div>
 					<div hidden>[[item.id]]</div>
+				</paper-item-body> -->
+				<paper-item-body>
+					<div>[[_computeListValues(item)]]</div>
+					<div hidden>[[_computeValueField(item)]]</div>
 				</paper-item-body>
 			</template>
 		</vaadin-combo-box>
@@ -69,6 +73,7 @@ Copyright © HatioLab Inc. All rights reserved.
 					customParams: Object,
 					valuePath: String,
 					labelPath: String,
+					descPath: String,
 					filter: String,
 					pageSize: {
 						type: Number,
@@ -99,7 +104,8 @@ Copyright © HatioLab Inc. All rights reserved.
 					},
 					objValue: {
 						type: Object,
-						notify: true
+						notify: true,
+						computed: '_computeObjValue(value, label)'
 					},
 					opened: Boolean,
 					disabled: Boolean,
@@ -119,9 +125,11 @@ Copyright © HatioLab Inc. All rights reserved.
 
 				// FIXME
 				var style = document.createElement('style')
-				style.innerHTML = 'vaadin-text-field { display: block; ';
-				style.innerHTML += 'padding: 8px 0;';
-				style.innerHTML += '@apply--paper - input - container;}';
+				style.innerHTML = 'vaadin-text-field { \n';
+				style.innerHTML += 'display: block;\n';
+				style.innerHTML += 'padding: 8px 0; \n';
+				style.innerHTML += '@apply --paper-input-container;\n';
+				style.innerHTML += '\n}';
 				this.shadowRoot.querySelector('vaadin-combo-box').shadowRoot.appendChild(style);
 			}
 
@@ -154,13 +162,54 @@ Copyright © HatioLab Inc. All rights reserved.
 				return url;
 			}
 
-			// _computeObjValue(value) {
-			// 	var obj = {};
-			// 	obj[this.valuePath] = value;
-			// 	obj[this.labelPath] = label;
-			// 	console.log(obj);
-			// 	return obj;
-			// }
+			_computeListValues(item) {
+				if (!item) {
+					return;
+				}
+
+				var value = '';
+				switch (this.resourceType) {
+					case 'CODE':
+						value = `${item[this.valuePath]}: ${item[this.labelPath]}`;
+						break;
+					case 'ENTITY':
+					case 'SERVICE':
+						value = `${item[this.labelPath]}: ` + (item[this.descPath] || '');
+						break;
+				}
+
+				return value;
+			}
+
+			_computeValueField(item) {
+				if (!item) {
+					return;
+				}
+
+				return `${item[this.valuePath]}`;
+			}
+
+			_computeObjValue(value, label) {
+				if (!value || !label) {
+					return;
+				}
+
+				if (!this.items) {
+					return;
+				}
+
+				var obj = {};
+				var items = this.items;
+				for (let i = 0; i < items.length; i++) {
+					let item = items[i];
+					if (item[this.valuePath] === value) {
+						obj = item;
+						break;
+					}
+				}
+
+				return obj;
+			}
 
 			_resourceTypeChanged(resourceType) {
 				switch (resourceType) {
@@ -178,10 +227,6 @@ Copyright © HatioLab Inc. All rights reserved.
 			}
 
 			_queryParamsChanged(queryParams) {
-				if (!queryParams) {
-					return;
-				}
-
 				var queryString = '';
 				if (queryParams instanceof Array) {
 					queryString = JSON.stringify(queryParams);
@@ -209,14 +254,15 @@ Copyright © HatioLab Inc. All rights reserved.
 					return;
 				}
 
+				if (data instanceof Array) {
+					// do nothing
+				} else {
+					data = data.items;
+				}
+
 				var items = [];
-				var valuePath = this.valuePath;
-				var labelPath = this.labelPath;
-				var resourceType = this.resourceType;
-				data.items.forEach((item) => {
-					let obj = {};
-					obj[this.valuePath] = item[valuePath];
-					obj[this.labelPath] = item[labelPath];
+				data.forEach((item) => {
+					let obj = Object.assign({}, item);
 					items.push(obj);
 				});
 
