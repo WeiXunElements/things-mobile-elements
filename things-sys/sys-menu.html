@@ -17,97 +17,105 @@ Copyright © HatioLab Inc. All rights reserved.
       :host {
         display: block;
         /*background-color:var(--things-sidebar-background-color);*/
-        background-color:#fff;
-        color:#585858;
+        background-color: #fff;
+        color: #585858;
         position: relative;
-        height:calc(100% - 85px);
+        height: calc(100% - 85px);
         overflow-x: hidden;
         overflow-y: auto;
       }
+
       #mainContainer {
         overflow-x: hidden;
         overflow-y: auto;
       }
+
       paper-button {
         display: block;
         border-bottom: 1px solid rgba(0, 0, 0, .15);
         background-color: #fff;
-        margin: 0;padding:15px 10px 5px 12px;
+        margin: 0;
+        padding: 15px 10px 5px 12px;
         font-size: 14px;
-        font-weight:bold;
+        font-weight: bold;
         text-align: left;
         -webkit-border-radius: 0px;
         -moz-border-radius: 0px;
         border-radius: 0px;
       }
-      iron-collapse:focus,a:focus{outline:none;}
+
+      iron-collapse:focus,
+      a:focus {
+        outline: none;
+      }
+
       paper-listbox {
         background-color: #f6f6f6;
         border-bottom: 1px solid rgba(0, 0, 0, .05);
-        padding:0;
-        overflow:hidden
+        padding: 0;
+        overflow: hidden
       }
+
       paper-item {
         padding: 3px 5px 6px 10px;
         display: block !important;
-        overflow:hidden;
-        width:calc(50% - 16px);
-        float:left;
-        min-height: 30px !important;max-height:32px;
+        overflow: hidden;
+        width: calc(50% - 16px);
+        float: left;
+        min-height: 30px !important;
+        max-height: 32px;
         border-right: 1px solid rgba(0, 0, 0, .05);
         border-bottom: 1px solid rgba(0, 0, 0, .05);
         font-size: 15px !important;
         line-height: 2.5 !important;
-        text-overflow:ellipsis;
+        text-overflow: ellipsis;
       }
-      paper-item[active]{
-        color:#fff;
-        font-weight:bold;
-        background-color:rgba(0,0,0,.1);
+
+      paper-item[active] {
+        color: #fff;
+        font-weight: bold;
+        background-color: rgba(0, 0, 0, .1);
       }
-      paper-item[active]:before{
+
+      paper-item[active]:before {
         /*background-color:var(--things-secondary-background-color);*/
-        background-color:#607D8B;
-        opacity:1;
+        background-color: #607D8B;
+        opacity: 1;
       }
+
       .scroll {
         height: 100%;
         overflow-y: scroll;
       }
+
       a {
-        text-decoration:none;
+        text-decoration: none;
       }
     </style>
 
-    <sys-ajax
-      auto
-      id="ajax-menu"
-      method="GET"
-      content-type="application/x-www-form-urlencoded"
-      curl="[[menuUrl]]"
-      custom-params="[[queryParams]]"
-      last-response="{{menus}}">
+    <sys-ajax auto id="ajax-menu" method="GET" content-type="application/x-www-form-urlencoded"
+      curl="[[menuUrl]]" custom-params="[[queryParams]]" last-response="{{menus}}">
     </sys-ajax>
 
     <div id="mainContainer">
-    <!-- <div class="brand">[[brandName]]</div> -->
+      <!-- <div class="brand">[[brandName]]</div> -->
 
       <dom-repeat items="[[groups]]" as="group">
-      <template>
-        <paper-button aria-controls={{group.menuGroupId}} on-tap="toggle">
-          [[group.title]]
-        </paper-button>
+        <template>
+          <paper-button aria-controls={{group.menuGroupId}} on-tap="toggle">
+            [[group.title]]
+          </paper-button>
 
-        <iron-collapse id="{{group.menuGroupId}}" opened tabindex="0">
-          <paper-listbox selected-item="[[selectedItem]]" class="content">
-            <dom-repeat items="[[group.child]]" as="item">
-            <template>
-              <paper-item data="[[item]]" on-tap="_tapItem">[[item.title]]</paper-item>
-            </template>
-            </dom-repeat>
-          </paper-listbox>
-        </iron-collapse>
-      </template>
+          <iron-collapse id="{{group.menuGroupId}}" opened tabindex="0">
+            <paper-listbox selected-item="[[selectedItem]]" class="content">
+              <dom-repeat items="[[group.child]]" as="item">
+                <template>
+                  <paper-item data="[[item]]" on-tap="_tapItem">[[item.title]]</paper-item>
+                </template>
+              </dom-repeat>
+            </paper-listbox>
+          </iron-collapse>
+        </template>
       </dom-repeat>
     </div>
 
@@ -155,7 +163,7 @@ Copyright © HatioLab Inc. All rights reserved.
            * *******
            * @type {Array}
            */
-          queryParams : {
+          queryParams: {
             type: Array,
             computed: '_computeQueryParams(menuCategory)'
           },
@@ -264,16 +272,16 @@ Copyright © HatioLab Inc. All rights reserved.
        */
       _getChildMenu(menuGroup, items) {
         var me = this;
-        return items.filter(function(item) {
+        return items.filter(function (item) {
           let screenMenuFlag = (item && item.menu_type === 'SCREEN' && item.parent_id === menuGroup.id);
-          if(screenMenuFlag) {
+          if (screenMenuFlag) {
             item.parent_name = menuGroup.title;
 
-            try {
-              me._appendMainPages(item);
-            } catch(e) {
-              console.warn(e.message);
-            }
+            // try {
+            //   me._appendMainPages(item);
+            // } catch(e) {
+            //   console.warn(e.message);
+            // }
           }
           return screenMenuFlag;
         });
@@ -344,7 +352,7 @@ Copyright © HatioLab Inc. All rights reserved.
        */
       toggle(e) {
         var target = this.shadowRoot.querySelector('#' + e.target.ariaControls);
-        if(target && target.toggle) {
+        if (target && target.toggle) {
           target.toggle();
         }
       }
