@@ -175,6 +175,9 @@ Copyright © HatioLab Inc. All rights reserved.
 					case 'ENTITY':
 					case 'SERVICE':
 						value = `${item[this.labelPath]}: ` + (item[this.descPath] || '');
+
+					default:
+						value = `${item[this.labelPath]}: ` + (item[this.descPath] || '');
 						break;
 				}
 
