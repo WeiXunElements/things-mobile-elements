@@ -8,55 +8,69 @@ Copyright © HatioLab Inc. All rights reserved.
 <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../iron-icons/iron-icons.html">
 <link rel="import" href="../../iron-icons/image-icons.html">
+<link rel="import" href="../../iron-image/iron-image.html">
 
 <dom-module id="things-camera">
     <template>
         <style>
             :host {
-                display: block;
-                padding:15px 10px 10px 10px;
-                background-color:#f4f4f4;
-                border-radius:5px;
+                --things-image-padding: 5px;
+                --things-camera-image-border: 1px solid #f4f4f4;
+                --things-camera-image-width: 30px;
+                --things-camera-image-height: 30px;
+
+                /* display: grid; */
+                padding: var(--things-image-padding);
+                border: var(--things-camera-image-border);
+
+                --things-camera-button-radius: 10%;
+                --things-camera-button-width: 40px;
+                --things-camera-button-height: 40px;
+                --things-camera-button-float: left;
             }
-            label{
-                font-size:14px;
-                color:var(--things-primary-text-color);
+
+            label {
+                font-size: 14px;
+                color: var(--things-primary-text-color);
             }
-            paper-icon-button{
-                width:40px;height:40px;
-                float:right;
-                margin-right:10px;
-                background-color:var(--things-secondary-background-color);
-                border-radius:50%;
-                color:var(--things-white-background-color);
+
+            iron-image {
+                position: fixed;
+                z-index: -1;
+                background-color: #f4f4f4;
+                width: var(--things-camera-image-width);
+                height: var(--things-camera-image-height);
+            }
+
+            paper-icon-button {
+                width: var(--things-camera-button-width);
+                height: var(--things-camera-button-height);
+                float: var(--things-camera-button-float);
+                margin-right: 5px;
+                background-color: var(--things-secondary-background-color);
+                border-radius: var(--things-camera-button-radius);
+                color: var(--things-white-background-color);
             }
         </style>
 
-        <dom-if if="[[isEnable]]">
-            <template>
-                <paper-toast class="fit-bottom" text="[[toastMessage]]">
-                </paper-toast>
-                <label>[[t('text.image_upload')]]</label>
+        <!-- <dom-if if="[[isEnable]]"> -->
+        <!-- <template> -->
+        <paper-toast class="fit-bottom" text="[[toastMessage]]">
+        </paper-toast>
+        <label>[[t('text.image_upload')]]</label>
 
-                <paper-icon-button 
-                    icon="perm-media" 
-                    on-tap="_handleTapPhotoLib">
-                </paper-icon-button>
+        <paper-icon-button icon="perm-media" on-tap="_handleTapPhotoLib">
+        </paper-icon-button>
 
-                <paper-icon-button 
-                    icon="image:camera" 
-                    on-tap="_handleTapCamera">
-                </paper-icon-button>
-                
-                <!-- <iron-image 
+        <paper-icon-button icon="image:camera" on-tap="_handleTapCamera">
+        </paper-icon-button>
+
+        <!-- <iron-image 
                     style="width:100%; height:auto;"  -->
-                <iron-image 
-                    style="width:100%; height:400px;" 
-                    src="[[imageSrc]]" 
-                    sizing="contain">
-                </iron-image>
-            </template>
-        </dom-if>
+        <iron-image src="[[imageSrc]]" sizing="contain">
+        </iron-image>
+        <!-- </template> -->
+        <!-- </dom-if> -->
     </template>
     <script>
         /**
