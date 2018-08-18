@@ -16,8 +16,14 @@ Copyright © HatioLab Inc. All rights reserved.
             :host {
                 --things-image-padding: 5px;
                 --things-camera-image-border: 1px solid #f4f4f4;
-                --things-camera-image-width: 30px;
-                --things-camera-image-height: 30px;
+                --things-camera-image-width: calc(100% - 20px);
+                --things-camera-image-height: auto;
+                --things-camera-image-min-width: 200px;
+                --things-camera-image-min-height: 200px;
+                --things-camera-iron-image: {
+                    /* background-color: yellow; */
+                }
+                ;
 
                 /* display: grid; */
                 padding: var(--things-image-padding);
@@ -37,9 +43,12 @@ Copyright © HatioLab Inc. All rights reserved.
             iron-image {
                 position: fixed;
                 z-index: -1;
-                /* background-color: #f4f4f4; */
+                /* background-color: yellow; */
                 width: var(--things-camera-image-width);
                 height: var(--things-camera-image-height);
+                min-width: var(--things-camera-image-min-width);
+                min-height: var(--things-camera-image-min-height);
+                @apply --things-camera-iron-image;
             }
 
             paper-icon-button {
@@ -53,24 +62,24 @@ Copyright © HatioLab Inc. All rights reserved.
             }
         </style>
 
-        <!-- <dom-if if="[[isEnable]]"> -->
-        <!-- <template> -->
-        <paper-toast class="fit-bottom" text="[[toastMessage]]">
-        </paper-toast>
-        <label>[[t('text.image_upload')]]</label>
+        <dom-if if="[[isEnable]]">
+            <template>
+                <paper-toast class="fit-bottom" text="[[toastMessage]]">
+                </paper-toast>
+                <label>[[t('text.image_upload')]]</label>
 
-        <paper-icon-button icon="perm-media" on-tap="_handleTapPhotoLib">
-        </paper-icon-button>
+                <paper-icon-button icon="perm-media" on-tap="_handleTapPhotoLib">
+                </paper-icon-button>
 
-        <paper-icon-button icon="image:camera" on-tap="_handleTapCamera">
-        </paper-icon-button>
+                <paper-icon-button icon="image:camera" on-tap="_handleTapCamera">
+                </paper-icon-button>
 
-        <!-- <iron-image 
+                <!-- <iron-image 
                     style="width:100%; height:auto;"  -->
-        <iron-image src="[[imageSrc]]" sizing="contain">
-        </iron-image>
-        <!-- </template> -->
-        <!-- </dom-if> -->
+                <iron-image src="[[imageSrc]]" sizing="contain">
+                </iron-image>
+            </template>
+        </dom-if>
     </template>
     <script>
         /**
