@@ -175,10 +175,9 @@ Copyright © HatioLab Inc. All rights reserved.
 					case 'ENTITY':
 					case 'SERVICE':
 						value = `${item[this.labelPath]}: ` + (item[this.descPath] || '');
-
-					default:
-						value = `${item[this.labelPath]}: ` + (item[this.descPath] || '');
 						break;
+					default:
+						value = `${item[this.valuePath]}: ${item[this.labelPath]}`;
 				}
 
 				return value;
@@ -223,6 +222,7 @@ Copyright © HatioLab Inc. All rights reserved.
 					case 'ENTITY':
 						this.valuePath = this.valuePath || 'id';
 						this.labelPath = this.labelPath || 'name';
+						this.descPath = this.descPath || 'description';
 						break;
 					case 'SERVICE':
 						break;
