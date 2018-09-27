@@ -57,6 +57,7 @@ Copyright © HatioLab Inc. All rights reserved.
 			body="[[body]]"
 			headers="[[headers]]"
 			content-type="[[contentType]]"
+			sync="[[sync]]"
 			last-response="{{lastResponse}}"
 			on-iron-ajax-response="_handleAjaxResponse"
 			on-iron-ajax-error="_handleAjaxError">
@@ -136,7 +137,12 @@ Copyright © HatioLab Inc. All rights reserved.
 						type: Boolean,
 						value: true
 					},
-					toastMessage: String
+					toastMessage: String,
+
+					sync: {
+						type: Boolean,
+						value: false
+					}
 				}
 			}
 
