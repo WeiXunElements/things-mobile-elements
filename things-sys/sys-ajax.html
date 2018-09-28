@@ -46,7 +46,7 @@ Copyright © HatioLab Inc. All rights reserved.
 		<iron-ajax id="ajax" auto="[[auto]]" url="[[url]]" method="[[method]]" with-credentials="[[withCredentials]]"
 		 loading="{{loading}}" params="[[params]]" body="[[body]]" headers="[[headers]]"
 		 content-type="[[contentType]]" last-response="{{lastResponse}}" on-iron-ajax-response="_handleAjaxResponse"
-		 on-iron-ajax-error="_handleAjaxError">
+		 on-iron-ajax-error="_handleAjaxError" sync="[[sync]]">
 		</iron-ajax>
 	</template>
 
@@ -123,7 +123,12 @@ Copyright © HatioLab Inc. All rights reserved.
 						type: Boolean,
 						value: true
 					},
-					toastMessage: String
+					toastMessage: String,
+
+					sync: {
+						type: Boolean,
+        				value: false
+					}
 				}
 			}
 
