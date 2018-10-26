@@ -46,7 +46,11 @@ Copyright © HatioLab Inc. All rights reserved.
                     chartData: {
                         type: Object,
                         observer: '_chartDataChanged'
-                    }
+                    },
+                    xAxisIds: Array,
+                    yAxisIds: Array,
+                    otherTypes: Array,
+                    fills: Array
                 };
             }
 
@@ -76,7 +80,8 @@ Copyright © HatioLab Inc. All rights reserved.
             }
 
             redraw() {
-                this.chartData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
+                this.chartData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked, 
+                    this.xAxisIds, this.yAxisIds, this.otherTypes, this.fills);
             }
 
             _draw() {
@@ -101,7 +106,7 @@ Copyright © HatioLab Inc. All rights reserved.
                 }
             }
 
-            _buildChartData(columns, backgroundColors, borderColors, rows, isStacked) {
+            _buildChartData(columns, backgroundColors, borderColors, rows, isStacked, xAxisIds, yAxisIds, otherTypes, fills) {
                 if (!columns || !rows) {
                     return;
                 }
@@ -153,6 +158,23 @@ Copyright © HatioLab Inc. All rights reserved.
                     if (borderColors && borderColors[idx]) {
                         dataset.borderColors = borderColors[idx];
                     }
+
+                    if (xAxisIds && xAxisIds.length > 0) {
+                        dataset.xAxisID = xAxisIds[idx];
+                    }
+
+                    if (yAxisIds && yAxisIds.length > 0) {
+                        dataset.yAxisID = yAxisIds[idx];
+                    }
+                    
+                    if (otherTypes && otherTypes.length > 0 && otherTypes[idx]) {
+                        dataset.type = otherTypes[idx];
+                    }
+
+                    if (fills && fills.length > 0) {
+                        dataset.fill = fills[idx];
+                    }
+
                     dataset.label = column;
                     dataset.data = colValues;
                     // console.log(colValues);
