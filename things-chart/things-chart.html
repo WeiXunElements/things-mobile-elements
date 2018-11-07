@@ -50,7 +50,11 @@ Copyright © HatioLab Inc. All rights reserved.
                     xAxisIds: Array,
                     yAxisIds: Array,
                     otherTypes: Array,
-                    fills: Array
+                    fills: Array,
+                    hiddenPieLabel: {
+						type: Boolean,
+						value: false
+					}
                 };
             }
 
@@ -138,6 +142,9 @@ Copyright © HatioLab Inc. All rights reserved.
                 var datasets = [];
                 var dataMap = new Map(rows);
                 var labels = Array.from(dataMap.keys());
+                if (this.type == 'pie' && this.hiddenPieLabel) {
+                    labels = null;
+                }
 
                 columns.forEach((column, idx) => {
                     let dataset = {};
