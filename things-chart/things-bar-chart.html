@@ -11,13 +11,14 @@ Copyright © HatioLab Inc. All rights reserved.
     <template>
         <style>
             div {
-                padding:15px;
+                padding:1px;
             }
             canvas{
-                width:100%;height:100%;
+                width:100%;
+                height:100%;
             }
         </style>
-        <div>
+        <div style="height:[[contHeight]]">
             <canvas id="canvas"></canvas>
         </div>
     </template>
@@ -36,17 +37,23 @@ Copyright © HatioLab Inc. All rights reserved.
                 //     type: String,
                 //     observer: '_customOptionsChanged'
                 // },
+                contHeight:{
+                    type:String,
+                    notify:true,
+                    value:'169px'
+                },
                 options: {
                     type: Object,
                     computed: '_computedOptions(title, borderWidth, legendPos, scales)'
                 },
-                // columns: Array,
-                // backgroundColors: Array,
-                // borderColors: Array,
-                // rows: Array,
-                // chart: Object,
-                // title: String,
-                // isStacked: Boolean,
+                rows: {
+                    type: Array,
+                    observer: '_rowsChanged'
+                },
+                autoHeight:{
+                    type:Boolean,
+                    value:false
+                },
                 scales: {
                     type: Object,
                     computed: '_computeScales(isStacked)'
@@ -54,33 +61,15 @@ Copyright © HatioLab Inc. All rights reserved.
             };
         }
 
-        // _customOptionsChanged(customOptions) {
-        //     if (!customOptions) {
-        //         return;
-        //     }
-
-        //     if (customOptions.isStacked) {
-        //         this.scales = {
-        //             xAxes: [{
-        //                 stacked: true,
-        //             }],
-        //             yAxes: [{
-        //                 stacked: true
-        //             }]
-        //         };
-        //     }
-        //     this.title = customOptions.title;
-        // }
-        
         _computeScales(isStacked) {
             if (isStacked) {
                 return {
-                    xAxes: [{
+                    xAxes: [ {
                         stacked: true,
-                    }],
-                    yAxes: [{
+                    } ],
+                    yAxes: [ {
                         stacked: true
-                    }]
+                    } ]
                 }
             }
         }
@@ -95,20 +84,35 @@ Copyright © HatioLab Inc. All rights reserved.
                     }
                 },
                 responsive: true,
-                legend: {
-                    position: legendPos
+				legend:{
+                    display:true,
+                    position:'top'
                 },
+                maintainAspectRatio: false,
+                scaleBeginAtZero:true,
                 scales: scales
             };
 
             if (title) {
-                option.title = {
+                options.title = {
                     display: true,
                     text: title
                 };
             }
 
             return options;
+        }
+
+        _rowsChanged(rows){
+            if(this.autoHeight){
+                if(rows && rows.length && rows.length > 5){
+                    let height = 93 + (rows.length * 18) ;
+                    this.contHeight = height + 'px';
+                }else{
+                    this.contHeight = '169px';
+                }
+            }
+            this.redraw();
         }
     }
 

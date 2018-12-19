@@ -4,22 +4,25 @@ Copyright © HatioLab Inc. All rights reserved.
 -->
 
 <link rel="import" href="../../polymer/polymer-element.html">
+<!-- <link rel="import" href="../../granite-bootstrap/granite-bootstrap.html"> -->
 
 <link rel="import" href="./things-chart.html">
 
 <dom-module id="things-pie-chart">
     <template>
         <style>
-            div {
-                padding:15px;
-            }
-            canvas{
-                width:100%;height:100%;
+            canvas {
+                width: 100%;
+                /* height: 100%; */
             }
         </style>
-        <div>
-            <canvas id="canvas"></canvas>
-        </div>
+
+        <!-- <div class="row"> -->
+            <div style="height:[[pieCharHeight]]">
+            <!-- <div class="col-2"> -->
+                <canvas id="canvas"></canvas>
+            </div>
+        <!-- </div> -->
     </template>
     
     <script>
@@ -31,25 +34,27 @@ Copyright © HatioLab Inc. All rights reserved.
                     type: String,
                     value: 'pie'
                 },
-
-                // options: {
-                //     type: Object,
-                //     value: {
-                //         responsive: true
-                //     }
-                // },
-                // columns: Array,
-                // backgroundColors: Array,
-                // borderColors: Array,
-                // rows: Array,
-                // chart: Object,
-                // title: String,
-                // isStacked: Boolean,
-                // scales: {
-                //     type: Object,
-                //     computed: '_computeScales(isStacked)'
-                // }
+                rows: {
+                    type: Array,
+                    observer: '_rowsChanged'
+                },
+                autoHeight:{
+                    type:Boolean,
+                    value:false
+                }
             };
+        }
+
+        _rowsChanged(rows){
+            if(this.autoHeight){
+                if(rows && rows.length && rows.length > 5){
+                    let height = 200 + parseInt(rows.length / 5) * 20 ;
+                        this.pieCharHeight = height + 'px';
+                    }else{
+                        this.pieCharHeight = '169px';
+                }
+            }
+            this.redraw();
         }
     }
 

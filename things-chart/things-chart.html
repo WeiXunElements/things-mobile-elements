@@ -19,7 +19,7 @@ Copyright © HatioLab Inc. All rights reserved.
                     type: String,
                     options: {
                         type: Object,
-                        computed: '_computedOptions(title, borderWidth, legendPos, scales)'
+                        computed: '_computedOptions(title, borderWidth, legendPos, scales, labelSettings)'
                     },
                     columns: {
                         type: Array,
@@ -39,10 +39,6 @@ Copyright © HatioLab Inc. All rights reserved.
                     isStacked: Boolean,
                     borderWidth: Number,
                     legendPos: String,
-                    // chartCalData: {
-                    //     type: Object,
-                    //     readonly: true
-                    // },
                     chartData: {
                         type: Object,
                         observer: '_chartDataChanged'
@@ -79,7 +75,6 @@ Copyright © HatioLab Inc. All rights reserved.
             }
 
             _handleResize(e) {
-                // console.log(e);
                 this.redraw();
             }
 
@@ -114,30 +109,6 @@ Copyright © HatioLab Inc. All rights reserved.
                 if (!columns || !rows) {
                     return;
                 }
-
-                // bar, column, line
-                // return {
-                //     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-                //     datasets: [{
-                //         label: 'legend1',
-                //         backgroundColor: 'blue',
-                //         data: [12,23,22,25,10,33,12]
-                //     }, {
-                //         label: 'legend2',
-                //         backgroundColor: 'green',
-                //         data: [13,43,22,55,10,23,22]
-                //     }]
-                // };
-
-                // pie chart
-                // return {
-                //     labels: ["legend1", "legend2", "legend3", "legend4"],
-                //     datasets: [{
-                //         data: [12, 234, 345, 3],
-                //         backgroundColor: ['blue', 'red', 'green', 'gray'],
-                //         label: 'legend 1'
-                //     }]
-                // };
 
                 var datasets = [];
                 var dataMap = new Map(rows);
@@ -184,21 +155,19 @@ Copyright © HatioLab Inc. All rights reserved.
 
                     dataset.label = column;
                     dataset.data = colValues;
-                    // console.log(colValues);
 
                     datasets.push(dataset);
                 }, this);
 
-                // console.log(labels);
-                // console.log(datasets);
                 return { labels, datasets };
             }
 
             /**
              * 
              */
-            _computedOptions(title, borderWidth, legendPos, scales) {
-                return {
+            _computedOptions(title, borderWidth, legendPos, scales, labelSettings) {
+                var options = {
+
                     // Elements options apply to all of the options unless overridden in a dataset
                     // In this case, we are setting the border of each horizontal bar to be 2px wide
                     elements: {
@@ -207,14 +176,34 @@ Copyright © HatioLab Inc. All rights reserved.
                         }
                     },
                     responsive: true,
+                    maintainAspectRatio: true,
+                    transparencyEffects: true,
+                    dataSetBorderWidth: 0, 
                     legend: {
-                        position: legendPos
+                        display: true,
+                        fullWidth: true
                     },
-                    title: {
+
+                    maintainAspectRatio: false
+                };
+
+                if (legendPos) {
+                    options.legend.position = legendPos;
+                }
+
+                if (labelSettings) {
+                    options.legend.labels = labelSettings;
+                }
+
+                if (title) {
+                    options.title = {
                         display: true,
                         text: title
-                    }
+                    };
+
                 }
+
+                return options;
             }
         }
 
