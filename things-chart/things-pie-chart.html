@@ -18,7 +18,7 @@ Copyright © HatioLab Inc. All rights reserved.
         </style>
 
         <!-- <div class="row"> -->
-            <div style="height:[[pieCharHeight]]">
+            <div style="height:[[contHeight]]">
             <!-- <div class="col-2"> -->
                 <canvas id="canvas"></canvas>
             </div>
@@ -41,6 +41,11 @@ Copyright © HatioLab Inc. All rights reserved.
                 autoHeight:{
                     type:Boolean,
                     value:false
+                },
+                contHeight:{
+                    type:String,
+                    notify:true,
+                    value:'169px'
                 }
             };
         }
@@ -49,9 +54,9 @@ Copyright © HatioLab Inc. All rights reserved.
             if(this.autoHeight){
                 if(rows && rows.length && rows.length > 5){
                     let height = 200 + parseInt(rows.length / 5) * 20 ;
-                        this.pieCharHeight = height + 'px';
+                        this.contHeight = height + 'px';
                     }else{
-                        this.pieCharHeight = '169px';
+                        this.contHeight = '169px';
                 }
             }
             this.redraw();
