@@ -101,8 +101,9 @@ Copyright © HatioLab Inc. All rights reserved.
                 this.value = '';
             }
 
-            focus() {
+            focus(isSelect) {
                 this.shadowRoot.querySelector('paper-input').focus();
+                if (isSelect) this.shadowRoot.querySelector('paper-input').inputElement.inputElement.select();
                 // this.shadowRoot.querySelector('paper-input').inputElement.inputElement.focus();
             }
         }
