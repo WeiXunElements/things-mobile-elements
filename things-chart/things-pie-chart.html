@@ -1,58 +1,70 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<!-- <link rel="import" href="../../granite-bootstrap/granite-bootstrap.html"> -->
 
-<link rel="import" href="./things-chart.html">
+<link rel="import" href="./things-chart.html" />
 
 <dom-module id="things-pie-chart">
-    <template>
-        <style>
-            div {
-                padding:15px;
-            }
-            canvas{
-                width:100%;height:100%;
-            }
-        </style>
-        <div>
-            <canvas id="canvas"></canvas>
-        </div>
-    </template>
-    
-    <script>
-    class ThingsPieChart extends customElements.get('things-chart') {
-        static get is() { return 'things-pie-chart'; }
-        static get properties() {
-            return {
-                type: {
-                    type: String,
-                    value: 'pie'
-                },
+  <template>
+    <style>
+      canvas {
+        width: 100%;
+        /* height: 100%; */
+      }
+    </style>
 
-                // options: {
-                //     type: Object,
-                //     value: {
-                //         responsive: true
-                //     }
-                // },
-                // columns: Array,
-                // backgroundColors: Array,
-                // borderColors: Array,
-                // rows: Array,
-                // chart: Object,
-                // title: String,
-                // isStacked: Boolean,
-                // scales: {
-                //     type: Object,
-                //     computed: '_computeScales(isStacked)'
-                // }
-            };
+    <!-- <div class="row"> -->
+    <div style="height: [[contHeight]]">
+      <!-- <div class="col-2"> -->
+      <canvas id="canvas"></canvas>
+    </div>
+    <!-- </div> -->
+  </template>
+
+  <script>
+    class ThingsPieChart extends customElements.get("things-chart") {
+      static get is() {
+        return "things-pie-chart";
+      }
+      static get properties() {
+        return {
+          type: {
+            type: String,
+            value: "pie",
+          },
+          rows: {
+            type: Array,
+            observer: "_rowsChanged",
+          },
+          autoHeight: {
+            type: Boolean,
+            value: false,
+          },
+          contHeight: {
+            type: String,
+            notify: true,
+            value: "169px",
+          },
+        };
+      }
+
+      _rowsChanged(rows) {
+        if (this.autoHeight) {
+          if (rows && rows.length && rows.length > 5) {
+            let height = 200 + parseInt(rows.length / 5) * 20;
+            this.contHeight = height + "px";
+          } else {
+            this.contHeight = "169px";
+          }
         }
+        this.redraw();
+      }
     }
 
     customElements.define(ThingsPieChart.is, ThingsPieChart);
-    </script>
+  </script>
 </dom-module>

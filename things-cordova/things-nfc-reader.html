@@ -1,79 +1,77 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-toast/paper-toast.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-toast/paper-toast.html" />
 
 <dom-module id="things-nfc-reader">
-    <template>
-        <style>
-        </style>
+  <template>
+    <style></style>
 
-        <paper-toast 
-            class="fit-bottom"
-            text="[[toastMessage]]">
-        </paper-toast>
-    </template>
+    <paper-toast class="fit-bottom" text="[[toastMessage]]"> </paper-toast>
+  </template>
 
-    <script>
-        class ThingsNfcReader extends Polymer.Element {
-            static get is() { return 'things-nfc-reader'; }
+  <script>
+    class ThingsNfcReader extends Polymer.Element {
+      static get is() {
+        return "things-nfc-reader";
+      }
 
-            static get properties() {
-                return {
-                    nfcValues: {
-                        type: Object,
-                        notify: true,
-                        readonly: true
-                    },
-                    isEnable: {
-                        type: Boolean,
-                        readonly: true,
-                        computed: '_computeIsEnable()'
-                    },
-                    isListen: {
-                        type: Boolean,
-                        observer: '_isListenChanged'
-                    }, 
-                    ndefCallback: Function
-                };
-            }
-
-            _computeIsEnable() {
-                return (typeof ndef == 'undefined' || !ndef) ? false : true;
-            }
-
-            _isListenChanged(isListen) {
-                if (!this.isEnable) {
-                    return;
-                }
-                if (isListen) {
-                    nfc.addNdefListener(this.ndefCallback, this.success, this.fail);
-                } else {
-                    nfc.removeNdefListener(this.ndefCallback, this.success, this.fail);
-                }
-            }
-
-            // ndefCallback(nfcEvent) {
-            //     
-            // }
-
-            // discoveredCallback(nfcEvent) {
-            // }
-
-            success() {
-                console.log("Listening for NDEF tags");
-            }
-
-            fail(reason) {
-                this.toastMessage = t('error.Fail listening for NDEF tags!');
-                this.shadowRoot.querySelector('paper-toast').open();
-                // window.plugins.toast.showShortBottom(Things.DataGlobal.t('text.NFC_ERROR'));
-            }
+      static get properties() {
+        return {
+          nfcValues: {
+            type: Object,
+            notify: true,
+            readonly: true,
+          },
+          isEnable: {
+            type: Boolean,
+            readonly: true,
+            computed: "_computeIsEnable()",
+          },
+          isListen: {
+            type: Boolean,
+            observer: "_isListenChanged",
+          },
+          ndefCallback: Function,
         };
+      }
 
-        customElements.define(ThingsNfcReader.is, ThingsNfcReader);
-    </script>
+      _computeIsEnable() {
+        return typeof ndef == "undefined" || !ndef ? false : true;
+      }
+
+      _isListenChanged(isListen) {
+        if (!this.isEnable) {
+          return;
+        }
+        if (isListen) {
+          nfc.addNdefListener(this.ndefCallback, this.success, this.fail);
+        } else {
+          nfc.removeNdefListener(this.ndefCallback, this.success, this.fail);
+        }
+      }
+
+      // ndefCallback(nfcEvent) {
+      //
+      // }
+
+      // discoveredCallback(nfcEvent) {
+      // }
+
+      success() {
+        console.log("Listening for NDEF tags");
+      }
+
+      fail(reason) {
+        this.toastMessage = t("error.Fail listening for NDEF tags!");
+        this.shadowRoot.querySelector("paper-toast").open();
+        // window.plugins.toast.showShortBottom(Things.DataGlobal.t('text.NFC_ERROR'));
+      }
+    }
+
+    customElements.define(ThingsNfcReader.is, ThingsNfcReader);
+  </script>
 </dom-module>

@@ -1,10 +1,10 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="./things-board-item.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="./things-board-item.html" />
 
 <dom-module id="things-pattern-board">
   <template>
@@ -26,20 +26,22 @@ Copyright © HatioLab Inc. All rights reserved.
     <div class="grid">
       <dom-repeat items="[[items]]" as="item">
         <template>
-          <things-board-item 
-            value-obj="[[item]]" 
+          <things-board-item
+            value-obj="[[item]]"
             hide-field-count="[[hideFieldCount]]"
-            state="[[_computeState(index, nextToFillNo)]]">
+            state="[[_computeState(index, nextToFillNo)]]"
+          >
           </things-board-item>
         </template>
       </dom-repeat>
     </div>
-
   </template>
 
   <script>
     class ThingsPatternBoard extends Polymer.Element {
-      static get is() { return 'things-pattern-board'; }
+      static get is() {
+        return "things-pattern-board";
+      }
 
       static get properties() {
         return {
@@ -47,25 +49,25 @@ Copyright © HatioLab Inc. All rights reserved.
           nextToFillNo: Number,
           hideFieldCount: {
             type: Number,
-            value: 0
+            value: 0,
           },
           rowUnit: {
             type: Number,
-            value: 5
+            value: 5,
           },
           totalCount: {
             type: Number,
-            value: 20
+            value: 20,
           },
           enableNoti: {
             type: Boolean,
-            value: true
+            value: true,
           },
           items: {
             type: Array,
-            computed: '_computeItems(data)'
+            computed: "_computeItems(data)",
           },
-          data: Array
+          data: Array,
         };
       }
 
@@ -80,7 +82,7 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         while (data.length < totalCount) {
-          data.push('');
+          data.push("");
         }
 
         // console.log(data);
@@ -95,11 +97,11 @@ Copyright © HatioLab Inc. All rights reserved.
       _computeState(index, nextToFillNo) {
         if (this.continuous) {
           if (index < nextToFillNo) {
-            return 'FULL';
+            return "FULL";
           } else if (this.enableNoti && index === nextToFillNo) {
-            return 'NOTI';
+            return "NOTI";
           } else {
-            return 'EMPTY';
+            return "EMPTY";
           }
         }
 

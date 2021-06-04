@@ -1,231 +1,228 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
-<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
 
-<link rel="import" href="../../paper-fab/paper-fab.html">
-<link rel="import" href="../../paper-material/paper-material.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../iron-collapse/iron-collapse.html">
-<link rel="import" href="../../iron-form/iron-form.html">
-<link rel="import" href="../../vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../../paper-fab/paper-fab.html" />
+<link rel="import" href="../../paper-material/paper-material.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../../iron-collapse/iron-collapse.html" />
+<link rel="import" href="../../iron-form/iron-form.html" />
+<link rel="import" href="../../vaadin-date-picker/vaadin-date-picker.html" />
 
-<link rel="import" href="./things-field-pager.html">
-<link rel="import" href="../things-input/things-combo-box.html">
+<link rel="import" href="./things-field-pager.html" />
+<link rel="import" href="../things-input/things-combo-box.html" />
 
-<link rel="import" href="../things-container/things-field-meta-parser.html">
-<link rel="import" href="../things-container/things-params-builder.html">
+<link rel="import" href="../things-container/things-field-meta-parser.html" />
+<link rel="import" href="../things-container/things-params-builder.html" />
 
 <dom-module id="things-fields-form">
-    <template>
-        <style>
-            :host {
-                display: block;
-                background-color: #f1f1f1;
-                border-bottom: 1px solid rgba(0, 0, 0, .1);
-            }
+  <template>
+    <style>
+      :host {
+        display: block;
+        background-color: #f1f1f1;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
 
-            form {
-                padding: 0 15px 15px 15px;
-            }
+      form {
+        padding: 0 15px 15px 15px;
+      }
 
-            paper-fab {
-                background-color: #4caf50;
-                width: 45px;
-                height: 45px;
-                position: relative;
-                z-index: 5;
-                float: right;
-                top: -25px;
-                margin-bottom: -45px;
-                padding: 0 !important;
-            }
+      paper-fab {
+        background-color: #4caf50;
+        width: 45px;
+        height: 45px;
+        position: relative;
+        z-index: 5;
+        float: right;
+        top: -25px;
+        margin-bottom: -45px;
+        padding: 0 !important;
+      }
 
-            paper-icon-button {
-                width: 20px;
-                height: 20px;
-                padding: 0;
-                opacity: .5;
-            }
+      paper-icon-button {
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        opacity: 0.5;
+      }
 
-            paper-spinner-lite {
-                display: none;
-            }
-        </style>
+      paper-spinner-lite {
+        display: none;
+      }
+    </style>
 
-        <paper-spinner-lite></paper-spinner-lite>
-        <paper-toast class="fit-bottom" text="[[toastMessage]]"></paper-toast>
+    <paper-spinner-lite></paper-spinner-lite>
+    <paper-toast class="fit-bottom" text="[[toastMessage]]"></paper-toast>
 
-        <paper-material elevation="0" class="layout horizontal flex">
-            <paper-icon-button icon="[[arrowIcon]]" on-tap="_tapToggle" hidden$="[[hideIcon]]"></paper-icon-button>
+    <paper-material elevation="0" class="layout horizontal flex">
+      <paper-icon-button icon="[[arrowIcon]]" on-tap="_tapToggle" hidden$="[[hideIcon]]"></paper-icon-button>
 
-            <iron-collapse id="content" class="flex" opened>
-                <iron-form id="form" with-credentials>
-                    <form>
-                        <things-field-pager id="searchPager" fields="[[formFields]]">
-                        </things-field-pager>
-                        <paper-fab icon="[[icon]]" on-tap="_tapFab"></paper-fab>
-                    </form>
-                </iron-form>
-            </iron-collapse>
+      <iron-collapse id="content" class="flex" opened>
+        <iron-form id="form" with-credentials>
+          <form>
+            <things-field-pager id="searchPager" fields="[[formFields]]"> </things-field-pager>
+            <paper-fab icon="[[icon]]" on-tap="_tapFab"></paper-fab>
+          </form>
+        </iron-form>
+      </iron-collapse>
+    </paper-material>
+  </template>
 
-        </paper-material>
-    </template>
+  <script>
+    class ThingsFieldsForm extends mix(Polymer.Element).with(Things.FieldMetaParser, Things.ParamsBuilder) {
+      static get is() {
+        return "things-fields-form";
+      }
 
-    <script>
-        class ThingsFieldsForm extends mix(Polymer.Element)
-            .with(Things.FieldMetaParser, Things.ParamsBuilder) {
-            static get is() { return 'things-fields-form'; }
+      static get properties() {
+        return {
+          icon: {
+            type: String,
+            value: "search",
+          },
+          auto: Boolean,
+          formFieldsMeta: {
+            type: Array,
+            observer: "_formFieldsMetaChanged",
+          },
+          formFields: Array,
+          sortFields: Array,
+          selectFields: {
+            type: Array,
+            // value: [ 'id', 'name', 'description' ]
+          },
+          hideIcon: {
+            value: false,
+          },
+          searchUrl: String,
+          actionUrl: {
+            type: String,
+            computed: "_computeActionUrl(searchUrl)",
+            observer: "_actionUrlChanged",
+          },
+          method: {
+            type: String,
+            value: "GET",
+          },
+          contentType: {
+            type: String,
+            value: "application/json",
+          },
+          isObjectParams: {
+            type: Boolean,
+            value: false,
+          },
+          lastResponse: {
+            type: Object,
+            notify: true,
+          },
+          arrowIcon: {
+            type: String,
+            value: "icons:arrow-drop-down",
+          },
+          initParams: Object,
+        };
+      }
 
-            static get properties() {
-                return {
-                    icon: {
-                        type: String,
-                        value: "search"
-                    },
-                    auto: Boolean,
-                    formFieldsMeta: {
-                        type: Array,
-                        observer: '_formFieldsMetaChanged'
-                    },
-                    formFields: Array,
-                    sortFields: Array,
-                    selectFields: {
-                        type: Array
-                        // value: [ 'id', 'name', 'description' ]
-                    },
-                    hideIcon: {
-                        value: false
-                    },
-                    searchUrl: String,
-                    actionUrl: {
-                        type: String,
-                        computed: '_computeActionUrl(searchUrl)',
-                        observer: '_actionUrlChanged'
-                    },
-                    method: {
-                        type: String,
-                        value: 'GET'
-                    },
-                    contentType: {
-                        type: String,
-                        value: 'application/json'
-                    },
-                    isObjectParams: {
-                        type: Boolean,
-                        value: false
-                    },
-                    lastResponse: {
-                        type: Object,
-                        notify: true,
-                    },
-                    arrowIcon: {
-                        type: String,
-                        value: 'icons:arrow-drop-down'
-                    },
-                    initParams: Object
-                };
-            }
+      _computeActionUrl(searchUrl) {
+        return `${globals.baseUrl}/${searchUrl}`;
+      }
 
-            _computeActionUrl(searchUrl) {
-                return `${globals.baseUrl}/${searchUrl}`;
-            }
+      _tapToggle() {
+        this.$["content"].toggle();
+        if (this.$["content"].opened) {
+          this.arrowIcon = "icons:arrow-drop-down";
+        } else {
+          this.arrowIcon = "icons:arrow-drop-up";
+        }
+      }
 
-            _tapToggle() {
-                this.$['content'].toggle();
-                if (this.$['content'].opened) {
-                    this.arrowIcon = 'icons:arrow-drop-down';
-                } else {
-                    this.arrowIcon = 'icons:arrow-drop-up';
-                }
-            }
-
-            _formFieldsMetaChanged(formFieldsMeta) {
-                if (!formFieldsMeta) {
-                    return;
-                }
-
-                var searchFields = [];
-                formFieldsMeta.forEach((meta) => {
-                    var field = this._createElement(meta);
-
-                    if (meta.search_init_val) {
-                        field.default = meta.search_init_val;
-                    }
-
-                    searchFields.push(field);
-                }, this);
-
-                this.formFields = searchFields;
-            }
-
-            _actionUrlChanged(actionUrl) {
-                if (!this.auto) {
-                    return;
-                }
-
-                this._tapFab();
-            }
-
-            _tapFab(e) {
-                var params = this._buildParams();
-                var event = new CustomEvent(
-                    'tap-form-btn',
-                    { detail: params, bubbles: true, composed: true });
-                this.dispatchEvent(event);
-            }
-
-            _buildParams() {
-                var params = {};
-                var form = this.$.form;
-                var formValues = form.serializeForm();
-                if (!this.isObjectParams) {
-                    var query = this.queryBuilder(this.formFields, formValues, this.initParams);
-                    if (query) {
-                        params.query = query;
-                    }
-                }
-
-                if (this.selectFields) {
-                    params.select = this.selectFields;
-                }
-
-                if (this.sortFields) {
-                    params.sort = this.sortFields;
-                }
-
-                return params;
-            }
-
-            _handleFormResponse(e) {
-                this.toggleSpinner();
-
-                this.lastResponse = e.detail.xhr.response;
-            }
-
-            _handleFormError(e) {
-                this.toggleSpinner();
-
-                this.toastMessage = e.detail.request.xhr.response.msg;
-                this.shadowRoot.querySelector('paper-toast').open();
-            }
-
-            // submit() {
-            //   if (!this.$.searchForm._form) { // FIXME : _form is internal property
-            //     console.warn('searchForm._form is undefined');
-            //     return;
-            //   }
-            //   this.$.searchForm.submit();
-            //   this.toggleSpinner();
-            // }
-
-            toggleSpinner() {
-                var spinner = this.shadowRoot.querySelector('paper-spinner-lite');
-                spinner.active = !spinner.active;
-            }
+      _formFieldsMetaChanged(formFieldsMeta) {
+        if (!formFieldsMeta) {
+          return;
         }
 
-        window.customElements.define(ThingsFieldsForm.is, ThingsFieldsForm);
-    </script>
+        var searchFields = [];
+        formFieldsMeta.forEach((meta) => {
+          var field = this._createElement(meta);
+
+          if (meta.search_init_val) {
+            field.default = meta.search_init_val;
+          }
+
+          searchFields.push(field);
+        }, this);
+
+        this.formFields = searchFields;
+      }
+
+      _actionUrlChanged(actionUrl) {
+        if (!this.auto) {
+          return;
+        }
+
+        this._tapFab();
+      }
+
+      _tapFab(e) {
+        var params = this._buildParams();
+        var event = new CustomEvent("tap-form-btn", { detail: params, bubbles: true, composed: true });
+        this.dispatchEvent(event);
+      }
+
+      _buildParams() {
+        var params = {};
+        var form = this.$.form;
+        var formValues = form.serializeForm();
+        if (!this.isObjectParams) {
+          var query = this.queryBuilder(this.formFields, formValues, this.initParams);
+          if (query) {
+            params.query = query;
+          }
+        }
+
+        if (this.selectFields) {
+          params.select = this.selectFields;
+        }
+
+        if (this.sortFields) {
+          params.sort = this.sortFields;
+        }
+
+        return params;
+      }
+
+      _handleFormResponse(e) {
+        this.toggleSpinner();
+
+        this.lastResponse = e.detail.xhr.response;
+      }
+
+      _handleFormError(e) {
+        this.toggleSpinner();
+
+        this.toastMessage = e.detail.request.xhr.response.msg;
+        this.shadowRoot.querySelector("paper-toast").open();
+      }
+
+      // submit() {
+      //   if (!this.$.searchForm._form) { // FIXME : _form is internal property
+      //     console.warn('searchForm._form is undefined');
+      //     return;
+      //   }
+      //   this.$.searchForm.submit();
+      //   this.toggleSpinner();
+      // }
+
+      toggleSpinner() {
+        var spinner = this.shadowRoot.querySelector("paper-spinner-lite");
+        spinner.active = !spinner.active;
+      }
+    }
+
+    window.customElements.define(ThingsFieldsForm.is, ThingsFieldsForm);
+  </script>
 </dom-module>

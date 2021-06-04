@@ -1,13 +1,11 @@
 {
   "name": "things-mobile-elements",
-  "homepage": "http://elements.hatiolab.com/",
-  "version": "v2.3.17",
+  "version": "v2.3.18",
   "authors": [
-    "hatio lab"
+    "Shenzhen Weixun"
   ],
   "description": "Things mobile elements",
   "main": "",
-  "license": "http://license.hatiolab.com/EULA",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -33,7 +31,7 @@
     "iron-pages": "PolymerElements/iron-pages#^2.0.1",
     "paper-item": "PolymerElements/paper-item#^2.1.0",
     "paper-material": "PolymerElements/paper-material#^2.1.0",
-    "paper-input": "PolymerElements/paper-input#^2.1.1",
+    "paper-input": "PolymerElements/paper-input#^2.2.2",
     "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.2",
     "paper-button": "PolymerElements/paper-button#^2.1.0",
     "paper-fab": "PolymerElements/paper-fab#^2.1.0",
@@ -49,10 +47,10 @@
     "things-scene-gauge": "ThingsElements/things-scene-gauge#^2.0.7",
     "things-scene-form": "ThingsElements/things-scene-form#^0.1.16",
     "things-scene-progressbar": "ThingsElements/things-scene-progressbar#^2.0.4",
-    "vaadin-material-theme": "vaadin/vaadin-material-theme#^0.3.0",
-    "vaadin-combo-box": "vaadin/vaadin-combo-box#^3.0.3",
-    "vaadin-date-picker": "vaadin/vaadin-date-picker#^2.0.7",
-    "vaadin-grid": "vaadin/vaadin-grid#^4.1.7",
+    "vaadin-combo-box": "vaadin/vaadin-combo-box#4.0.1",
+    "vaadin-date-picker": "vaadin/vaadin-date-picker#v3.1.2",
+    "vaadin-grid": "vaadin/vaadin-grid#5.0.4",
+    "vaadin-text-field": "vaadin/vaadin-text-field#^2.0.2",
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^2.0.0"
   }
 }

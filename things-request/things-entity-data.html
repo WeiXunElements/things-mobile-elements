@@ -1,37 +1,25 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../things-sys/sys-ajax.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../things-sys/sys-ajax.html" />
 
 <dom-module id="things-entity-data">
   <template>
-    <style>
-      
-    </style>
+    <style></style>
 
-    <sys-ajax
-      auto
-      method="GET"
-      curl="[[entityUrl]]"
-      last-response="{{entityInfo}}">
-    </sys-ajax>
+    <sys-ajax auto method="GET" curl="[[entityUrl]]" last-response="{{entityInfo}}"> </sys-ajax>
 
-    <sys-ajax
-      auto
-      method="GET"
-      curl="[[searchDetailUrl]]"
-      last-response="{{detailInfo}}">
-    </sys-ajax>
+    <sys-ajax auto method="GET" curl="[[searchDetailUrl]]" last-response="{{detailInfo}}"> </sys-ajax>
   </template>
 
   <script>
-
     class ThingsEntityData extends Polymer.Element {
-
-      static get is() { return 'things-entity-data'; }
+      static get is() {
+        return "things-entity-data";
+      }
 
       static get properties() {
         return {
@@ -39,26 +27,26 @@ Copyright © HatioLab Inc. All rights reserved.
           resourceUrl: String,
           entityUrl: {
             type: String,
-            computed: '_computeEntityUrl(resourceUrl, entityId)'
+            computed: "_computeEntityUrl(resourceUrl, entityId)",
           },
           entityInfo: {
             type: Object,
-            notify: true
+            notify: true,
           },
           detailUrl: String,
           searchDetailUrl: {
             type: String,
-            computed: '_computeSearchDetailUrl(detailUrl, entityId)'
+            computed: "_computeSearchDetailUrl(detailUrl, entityId)",
           },
           detailInfo: {
             type: Object,
-            notify: true
-          }
+            notify: true,
+          },
         };
       }
 
       _computeEntityUrl(resourceUrl, entityId) {
-        if(!resourceUrl || !entityId) {
+        if (!resourceUrl || !entityId) {
           return;
         }
 
@@ -66,11 +54,11 @@ Copyright © HatioLab Inc. All rights reserved.
       }
 
       _computeSearchDetailUrl(detailUrl, entityId) {
-        if(!detailUrl || !entityId) {
+        if (!detailUrl || !entityId) {
           return;
         }
 
-        return '/' + detailUrl.replace(':id', entityId);
+        return "/" + detailUrl.replace(":id", entityId);
       }
     }
 

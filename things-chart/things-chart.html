@@ -1,194 +1,220 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
 
 <script src="../../chart.js/dist/Chart.min.js"></script>
 
 <dom-module id="things-chart">
-    <template>
-    </template>
+  <template> </template>
 
-    <script>
-        class ThingsChart extends Polymer.Element {
-            static get is() { return 'things-chart'; }
-            static get properties() {
-                return {
-                    type: String,
-                    options: {
-                        type: Object,
-                        computed: '_computedOptions(title, borderWidth, legendPos, scales)'
-                    },
-                    columns: {
-                        type: Array,
-                        observer: '_columnsChanged'
-                    },
-                    backgroundColors: {
-                        type: Array,
-                        value: CONST.COLOR_SET
-                    },
-                    borderColors: Array,
-                    rows: {
-                        type: Array,
-                        observer: '_rowsChanged'
-                    },
-                    chart: Object,
-                    title: String,
-                    isStacked: Boolean,
-                    borderWidth: Number,
-                    legendPos: String,
-                    // chartCalData: {
-                    //     type: Object,
-                    //     readonly: true
-                    // },
-                    chartData: {
-                        type: Object,
-                        observer: '_chartDataChanged'
-                    }
-                };
-            }
+  <script>
+    class ThingsChart extends Polymer.Element {
+      static get is() {
+        return "things-chart";
+      }
+      static get properties() {
+        return {
+          type: String,
+          options: {
+            type: Object,
+            computed: "_computedOptions(title, borderWidth, legendPos, scales, labelSettings)",
+          },
+          columns: {
+            type: Array,
+            observer: "_columnsChanged",
+          },
+          backgroundColors: {
+            type: Array,
+            value: CONST.COLOR_SET,
+          },
+          borderColors: Array,
+          rows: {
+            type: Array,
+            observer: "_rowsChanged",
+          },
+          chart: Object,
+          title: String,
+          isStacked: Boolean,
+          borderWidth: Number,
+          legendPos: String,
+          chartData: {
+            type: Object,
+            observer: "_chartDataChanged",
+          },
+          xAxisIds: Array,
+          yAxisIds: Array,
+          otherTypes: Array,
+          fills: Array,
+          hiddenPieLabel: {
+            type: Boolean,
+            value: false,
+          },
+        };
+      }
 
-            connectedCallback() {
-                super.connectedCallback();
+      connectedCallback() {
+        super.connectedCallback();
 
-                window.addEventListener('resize', this._handleResize.bind(this));
-            }
+        window.addEventListener("resize", this._handleResize.bind(this));
+      }
 
-            disconnectedCallback() {
-                super.disconnectedCallback();
+      disconnectedCallback() {
+        super.disconnectedCallback();
 
-                window.removeEventListener('resize', this._handleResize.bind(this));
-            }
+        window.removeEventListener("resize", this._handleResize.bind(this));
+      }
 
-            _columnsChanged(columns) {
-                // this.redraw();
-            }
+      _columnsChanged(columns) {
+        // this.redraw();
+      }
 
-            _rowsChanged(rows) {
-                this.redraw();
-            }
+      _rowsChanged(rows) {
+        this.redraw();
+      }
 
-            _handleResize(e) {
-                // console.log(e);
-                this.redraw();
-            }
+      _handleResize(e) {
+        this.redraw();
+      }
 
-            redraw() {
-                this.chartData = this._buildChartData(this.columns, this.backgroundColors, this.borderColors, this.rows, this.isStacked);
-            }
+      redraw() {
+        this.chartData = this._buildChartData(
+          this.columns,
+          this.backgroundColors,
+          this.borderColors,
+          this.rows,
+          this.isStacked,
+          this.xAxisIds,
+          this.yAxisIds,
+          this.otherTypes,
+          this.fills
+        );
+      }
 
-            _draw() {
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-
-                var canvas = this.$.canvas;
-                var ctx = canvas.getContext("2d");
-
-                this.chart = new Chart(ctx, {
-                    type: this.type,
-                    data: this.chartData,
-                    options: this.options
-                });
-            }
-
-            // need to override
-            _chartDataChanged(chartData) {
-                if (chartData) {
-                    this._draw();
-                }
-            }
-
-            _buildChartData(columns, backgroundColors, borderColors, rows, isStacked) {
-                if (!columns || !rows) {
-                    return;
-                }
-
-                // bar, column, line
-                // return {
-                //     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-                //     datasets: [{
-                //         label: 'legend1',
-                //         backgroundColor: 'blue',
-                //         data: [12,23,22,25,10,33,12]
-                //     }, {
-                //         label: 'legend2',
-                //         backgroundColor: 'green',
-                //         data: [13,43,22,55,10,23,22]
-                //     }]
-                // };
-
-                // pie chart
-                // return {
-                //     labels: ["legend1", "legend2", "legend3", "legend4"],
-                //     datasets: [{
-                //         data: [12, 234, 345, 3],
-                //         backgroundColor: ['blue', 'red', 'green', 'gray'],
-                //         label: 'legend 1'
-                //     }]
-                // };
-
-                var datasets = [];
-                var dataMap = new Map(rows);
-                var labels = Array.from(dataMap.keys());
-
-                columns.forEach((column, idx) => {
-                    let dataset = {};
-                    let colValues = [];
-                    dataMap.forEach((values, key) => {
-                        let value = values[idx] != undefined ? values[idx] : values;
-                        colValues.push(value);
-                    });
-
-                    if (backgroundColors && backgroundColors.length > 0) {
-                        if (this.type != 'pie') {
-                            dataset.backgroundColor = backgroundColors[idx];
-                        } else {
-                            dataset.backgroundColor = backgroundColors.slice(0, colValues.length);
-                        }
-                    }
-
-                    if (borderColors && borderColors[idx]) {
-                        dataset.borderColors = borderColors[idx];
-                    }
-                    dataset.label = column;
-                    dataset.data = colValues;
-                    // console.log(colValues);
-
-                    datasets.push(dataset);
-                }, this);
-
-                // console.log(labels);
-                // console.log(datasets);
-                return { labels, datasets };
-            }
-
-            /**
-             * 
-             */
-            _computedOptions(title, borderWidth, legendPos, scales) {
-                return {
-                    // Elements options apply to all of the options unless overridden in a dataset
-                    // In this case, we are setting the border of each horizontal bar to be 2px wide
-                    elements: {
-                        rectangle: {
-                            borderWidth: borderWidth
-                        }
-                    },
-                    responsive: true,
-                    legend: {
-                        position: legendPos
-                    },
-                    title: {
-                        display: true,
-                        text: title
-                    }
-                }
-            }
+      _draw() {
+        if (this.chart) {
+          this.chart.destroy();
         }
 
-        customElements.define(ThingsChart.is, ThingsChart);
-    </script>
+        var canvas = this.$.canvas;
+        var ctx = canvas.getContext("2d");
+
+        this.chart = new Chart(ctx, {
+          type: this.type,
+          data: this.chartData,
+          options: this.options,
+        });
+      }
+
+      // need to override
+      _chartDataChanged(chartData) {
+        if (chartData) {
+          this._draw();
+        }
+      }
+
+      _buildChartData(columns, backgroundColors, borderColors, rows, isStacked, xAxisIds, yAxisIds, otherTypes, fills) {
+        if (!columns || !rows) {
+          return;
+        }
+
+        var datasets = [];
+        var dataMap = new Map(rows);
+        var labels = Array.from(dataMap.keys());
+        if (this.type == "pie" && this.hiddenPieLabel) {
+          labels = null;
+        }
+
+        columns.forEach((column, idx) => {
+          let dataset = {};
+          let colValues = [];
+          dataMap.forEach((values, key) => {
+            let value = values[idx] != undefined ? values[idx] : values;
+            colValues.push(value);
+          });
+
+          if (backgroundColors && backgroundColors.length > 0) {
+            if (this.type != "pie") {
+              dataset.backgroundColor = backgroundColors[idx];
+            } else {
+              dataset.backgroundColor = backgroundColors.slice(0, colValues.length);
+            }
+          }
+
+          if (borderColors && borderColors[idx]) {
+            dataset.borderColors = borderColors[idx];
+          }
+
+          if (xAxisIds && xAxisIds.length > 0) {
+            dataset.xAxisID = xAxisIds[idx];
+          }
+
+          if (yAxisIds && yAxisIds.length > 0) {
+            dataset.yAxisID = yAxisIds[idx];
+          }
+
+          if (otherTypes && otherTypes.length > 0 && otherTypes[idx]) {
+            dataset.type = otherTypes[idx];
+          }
+
+          if (fills && fills.length > 0) {
+            dataset.fill = fills[idx];
+          }
+
+          dataset.label = column;
+          dataset.data = colValues;
+
+          datasets.push(dataset);
+        }, this);
+
+        return { labels, datasets };
+      }
+
+      /**
+       *
+       */
+      _computedOptions(title, borderWidth, legendPos, scales, labelSettings) {
+        var options = {
+          // Elements options apply to all of the options unless overridden in a dataset
+          // In this case, we are setting the border of each horizontal bar to be 2px wide
+          elements: {
+            rectangle: {
+              borderWidth: borderWidth,
+            },
+          },
+          responsive: true,
+          maintainAspectRatio: true,
+          transparencyEffects: true,
+          dataSetBorderWidth: 0,
+          legend: {
+            display: true,
+            fullWidth: true,
+          },
+
+          maintainAspectRatio: false,
+        };
+
+        if (legendPos) {
+          options.legend.position = legendPos;
+        }
+
+        if (labelSettings) {
+          options.legend.labels = labelSettings;
+        }
+
+        if (title) {
+          options.title = {
+            display: true,
+            text: title,
+          };
+        }
+
+        return options;
+      }
+    }
+
+    customElements.define(ThingsChart.is, ThingsChart);
+  </script>
 </dom-module>

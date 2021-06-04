@@ -1,104 +1,106 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../iron-icons/iron-icons.html">
-<link rel="import" href="../../iron-icons/social-icons.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../app-layout/app-toolbar/app-toolbar.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../../iron-icons/iron-icons.html" />
+<link rel="import" href="../../iron-icons/social-icons.html" />
 
-<link rel="import" href="./com-view.html">
+<link rel="import" href="./com-view.html" />
 
 <dom-module id="sys-menu-header">
-    <template>
-        <style>
-           div.app-name{
-               height:45px;
-               text-align:center;
-               line-height:45px;
-           }
-           div.app-extra-btns{
-               background-color:var(--things-sidebar-background-color);
-               padding:9px 10px 0 0;
-               height:32px;
-               font-size:15px;
-           }
-           div.app-extra-btns paper-icon-button{
-               padding:0 !important;margin-left:10px;
-               width:23px;height:23px;
-               float:right;
-           }
-           div.app-extra-btns div paper-icon-button{
-               margin-left:0;margin-right:4px;
-               float:left
-           }
-           .app-extra-btns div{
-                display:inline-block;
-                margin-left:10px;
-           }
-        </style>
+  <template>
+    <style>
+      div.app-name {
+        height: 45px;
+        text-align: center;
+        line-height: 45px;
+      }
+      div.app-extra-btns {
+        background-color: var(--things-sidebar-background-color);
+        padding: 9px 10px 0 0;
+        height: 32px;
+        font-size: 15px;
+      }
+      div.app-extra-btns paper-icon-button {
+        padding: 0 !important;
+        margin-left: 10px;
+        width: 23px;
+        height: 23px;
+        float: right;
+      }
+      div.app-extra-btns div paper-icon-button {
+        margin-left: 0;
+        margin-right: 4px;
+        float: left;
+      }
+      .app-extra-btns div {
+        display: inline-block;
+        margin-left: 10px;
+      }
+    </style>
 
-        <iron-localstorage 
-            name="setting.user"
-            value="{{user}}">
-        </iron-localstorage>
+    <iron-localstorage name="setting.user" value="{{user}}"> </iron-localstorage>
 
-        <!-- <paper-icon-button on-tap="_tapFooter" icon="home"></paper-icon-button> -->
-        <div class="app-name">X-MOBILE</div>
-        <div class="app-extra-btns">
-            <div>
-                <paper-icon-button id="me" icon="account-circle"></paper-icon-button>
-                <label>[[user.login]]</label>
-            </div>
-            <paper-icon-button id="contacts" on-tap="_tapIcon" icon="perm-phone-msg"></paper-icon-button>
-            <paper-icon-button id="setting" on-tap="_tapIcon" icon="settings"></paper-icon-button>
-            <paper-icon-button id="notifications" on-tap="_tapIcon" icon="social:notifications-none"></paper-icon-button>
-            <dom-if if="[[newNotiCount]]">
-                <tempalte>
-                    <paper-badge for="notifications" label="[[newNotiCount]]"></paper-badge>
-                </tempalte>
-            </dom-if>
+    <!-- <paper-icon-button on-tap="_tapFooter" icon="home"></paper-icon-button> -->
+    <div class="app-name">X-MOBILE</div>
+    <div class="app-extra-btns">
+      <div>
+        <paper-icon-button id="me" icon="account-circle"></paper-icon-button>
+        <label>[[user.login]]</label>
+      </div>
+      <paper-icon-button id="contacts" on-tap="_tapIcon" icon="perm-phone-msg"></paper-icon-button>
+      <paper-icon-button id="setting" on-tap="_tapIcon" icon="settings"></paper-icon-button>
+      <paper-icon-button id="notifications" on-tap="_tapIcon" icon="social:notifications-none"></paper-icon-button>
+      <dom-if if="[[newNotiCount]]">
+        <tempalte>
+          <paper-badge for="notifications" label="[[newNotiCount]]"></paper-badge>
+        </tempalte>
+      </dom-if>
 
-            <paper-icon-button id="refresh" on-tap="_tapRefresh" icon="refresh"></paper-icon-button>
-        </div>
-    </template>
+      <paper-icon-button id="refresh" on-tap="_tapRefresh" icon="refresh"></paper-icon-button>
+    </div>
+  </template>
 
-    <script>
-        class SysMenuHeader extends customElements.get('com-view') {
-            static get is() { return 'sys-menu-header'; }
+  <script>
+    class SysMenuHeader extends customElements.get("com-view") {
+      static get is() {
+        return "sys-menu-header";
+      }
 
-            static get properties() {
-                return {
-                    route: {
-                        type: String,
-                        notify: true
-                    }
-                };
-            }
+      static get properties() {
+        return {
+          route: {
+            type: String,
+            notify: true,
+          },
+        };
+      }
 
-            constructor() {
-                super();
-            }
+      constructor() {
+        super();
+      }
 
-            _tapIcon(e) {
-                var target = e.currentTarget;
-                var id = target.id;
+      _tapIcon(e) {
+        var target = e.currentTarget;
+        var id = target.id;
 
-                this.route = {
-                    prefix: '',
-                    path: `/${id}`
-                };
+        this.route = {
+          prefix: "",
+          path: `/${id}`,
+        };
 
-                this.dispatchEvent(new CustomEvent('tap-header-icon'));
-            }
+        this.dispatchEvent(new CustomEvent("tap-header-icon"));
+      }
 
-            _tapRefresh(e) {
-                window.location.reload();
-            }
-        }
+      _tapRefresh(e) {
+        window.location.reload();
+      }
+    }
 
-        window.customElements.define(SysMenuHeader.is, SysMenuHeader);
-    </script>
+    window.customElements.define(SysMenuHeader.is, SysMenuHeader);
+  </script>
 </dom-module>

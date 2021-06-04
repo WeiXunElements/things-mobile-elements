@@ -1,110 +1,109 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
 
-<link rel="import" href="./things-scene-provider.html">
+<link rel="import" href="./things-scene-provider.html" />
 
 <dom-module id="things-scene-integrator">
-    <template>
-        <style>
-            host {
-                width: 100%;
-                height: 100%;
-            }
-        </style>
+  <template>
+    <style>
+      host {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
 
-        <things-scene-provider
-            scene-name="[[sceneName]]"
-            authorization-key="[[authorizationKey]]"
-            authorization-type="[[authorizationType]]"
-            scene="{{scene}}">
-        </things-scene-provider>
+    <things-scene-provider
+      scene-name="[[sceneName]]"
+      authorization-key="[[authorizationKey]]"
+      authorization-type="[[authorizationType]]"
+      scene="{{scene}}"
+    >
+    </things-scene-provider>
 
-        <div id="wrapper"
-            style="height:100%; width:100%; position: relative;"
-            class="scene-wrapper">
-        </div>
-    </template>
-    <script>
-        class ThingsSceneIntegrator extends Polymer.Element {
-            static get is() { return 'things-scene-integrator'; }
-            static get properties() {
-                return {
-                    license: String,
-                    sceneName: String,
-                    authorizationKey: String,
-                    authorizationType: String,
-                    scene: {
-                        type: Object,
-                        observer: '_sceneChanged'
-                    },
-                    fitMode: {
-                        type: String,
-                        value: 'both'
-                    }
-                };
-            }
+    <div id="wrapper" style="height: 100%; width: 100%; position: relative" class="scene-wrapper"></div>
+  </template>
+  <script>
+    class ThingsSceneIntegrator extends Polymer.Element {
+      static get is() {
+        return "things-scene-integrator";
+      }
+      static get properties() {
+        return {
+          license: String,
+          sceneName: String,
+          authorizationKey: String,
+          authorizationType: String,
+          scene: {
+            type: Object,
+            observer: "_sceneChanged",
+          },
+          fitMode: {
+            type: String,
+            value: "both",
+          },
+        };
+      }
 
-            _computeCurl(sceneName) {
-                return `/scenes/${sceneName}`;
-            }
+      _computeCurl(sceneName) {
+        return `/scenes/${sceneName}`;
+      }
 
-            _sceneChanged(scene) {
-                if (!scene) {
-                    // reject('cannot fetch resource: ' + sceneName + ', status: ' + xhr.status);
-                    return;
-                }
-
-                scene.target = this.$.wrapper;
-                this._bindAllEvents(scene._container, this);
-                scene.fit(this.fitMode)
-
-                this.callback && this.callback.call(this, scene);
-            }
-
-            callback(scene, e) {
-
-                if (e) {
-                    console.error(e);
-                    return
-                }
-
-                window.addEventListener('resize', () => {
-                    scene.fit(this.fitMode);
-                })
-
-                scene.on('click', (e, hint) => {
-                    var point = {
-                        x: e.offsetX,
-                        y: e.offsetY
-                    }
-
-                    console.log('clicked', point.x, point.y)
-                })
-            }
-
-            _bindAllEvents(container, scope) {
-                for (var eventName in this.eventMap) {
-                    if (this.eventMap.hasOwnProperty(eventName)) {
-                        var handler = this[this.eventMap[eventName]];
-                        container.on(eventName, handler, scope);
-                    }
-                }
-            }
-
-            _unbindAllEvents(container, scope) {
-                for (var eventName in this.eventMap) {
-                    if (this.eventMap.hasOwnProperty(eventName)) {
-                        var handler = this[this.eventMap[eventName]];
-                        container.off(eventName, handler, scope);
-                    }
-                }
-            }
+      _sceneChanged(scene) {
+        if (!scene) {
+          // reject('cannot fetch resource: ' + sceneName + ', status: ' + xhr.status);
+          return;
         }
 
-        customElements.define(ThingsSceneIntegrator.is, ThingsSceneIntegrator);
-    </script>
+        scene.target = this.$.wrapper;
+        this._bindAllEvents(scene._container, this);
+        scene.fit(this.fitMode);
+
+        this.callback && this.callback.call(this, scene);
+      }
+
+      callback(scene, e) {
+        if (e) {
+          console.error(e);
+          return;
+        }
+
+        window.addEventListener("resize", () => {
+          scene.fit(this.fitMode);
+        });
+
+        scene.on("click", (e, hint) => {
+          var point = {
+            x: e.offsetX,
+            y: e.offsetY,
+          };
+
+          console.log("clicked", point.x, point.y);
+        });
+      }
+
+      _bindAllEvents(container, scope) {
+        for (var eventName in this.eventMap) {
+          if (this.eventMap.hasOwnProperty(eventName)) {
+            var handler = this[this.eventMap[eventName]];
+            container.on(eventName, handler, scope);
+          }
+        }
+      }
+
+      _unbindAllEvents(container, scope) {
+        for (var eventName in this.eventMap) {
+          if (this.eventMap.hasOwnProperty(eventName)) {
+            var handler = this[this.eventMap[eventName]];
+            container.off(eventName, handler, scope);
+          }
+        }
+      }
+    }
+
+    customElements.define(ThingsSceneIntegrator.is, ThingsSceneIntegrator);
+  </script>
 </dom-module>

@@ -1,136 +1,159 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-toast/paper-toast.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../iron-icons/iron-icons.html">
-<link rel="import" href="../../iron-icons/image-icons.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-toast/paper-toast.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../../iron-icons/iron-icons.html" />
+<link rel="import" href="../../iron-icons/image-icons.html" />
+<link rel="import" href="../../iron-image/iron-image.html" />
 
 <dom-module id="things-camera">
-    <template>
-        <style>
-            :host {
-                display: block;
-                padding:15px 10px 10px 10px;
-                background-color:#f4f4f4;
-                border-radius:5px;
-            }
-            label{
-                font-size:14px;
-                color:var(--things-primary-text-color);
-            }
-            paper-icon-button{
-                width:40px;height:40px;
-                float:right;
-                margin-right:10px;
-                background-color:var(--things-secondary-background-color);
-                border-radius:50%;
-                color:var(--things-white-background-color);
-            }
-        </style>
+  <template>
+    <style>
+      :host {
+        --things-image-padding: 5px;
+        --things-camera-image-border: 1px solid #f4f4f4;
+        --things-camera-image-width: calc(100% - 20px);
+        --things-camera-image-height: auto;
+        --things-camera-image-min-width: 200px;
+        --things-camera-image-min-height: 200px;
+        --things-camera-iron-image: {
+          /* background-color: yellow; */
+        }
+        /* display: grid; */
+        padding: var(--things-image-padding);
+        border: var(--things-camera-image-border);
 
-        <dom-if if="[[isEnable]]">
-            <template>
-                <paper-toast class="fit-bottom" text="[[toastMessage]]">
-                </paper-toast>
-                <label>[[t('text.image_upload')]]</label>
+        --things-camera-button-radius: 10%;
+        --things-camera-button-width: 40px;
+        --things-camera-button-height: 40px;
+        --things-camera-button-float: left;
+      }
 
-                <paper-icon-button 
-                    icon="perm-media" 
-                    on-tap="_handleTapPhotoLib">
-                </paper-icon-button>
+      label {
+        font-size: 14px;
+        color: var(--things-primary-text-color);
+      }
 
-                <paper-icon-button 
-                    icon="image:camera" 
-                    on-tap="_handleTapCamera">
-                </paper-icon-button>
-                
-                <!-- <iron-image 
+      iron-image {
+        position: fixed;
+        z-index: -1;
+        /* background-color: yellow; */
+        width: var(--things-camera-image-width);
+        height: var(--things-camera-image-height);
+        min-width: var(--things-camera-image-min-width);
+        min-height: var(--things-camera-image-min-height);
+        @apply --things-camera-iron-image;
+      }
+
+      paper-icon-button {
+        width: var(--things-camera-button-width);
+        height: var(--things-camera-button-height);
+        float: var(--things-camera-button-float);
+        margin-right: 5px;
+        background-color: var(--things-secondary-background-color);
+        border-radius: var(--things-camera-button-radius);
+        color: var(--things-white-background-color);
+      }
+    </style>
+
+    <dom-if if="[[isEnable]]">
+      <template>
+        <paper-toast class="fit-bottom" text="[[toastMessage]]"> </paper-toast>
+        <label>[[t('text.image_upload')]]</label>
+
+        <paper-icon-button icon="perm-media" on-tap="_handleTapPhotoLib"> </paper-icon-button>
+
+        <paper-icon-button icon="image:camera" on-tap="_handleTapCamera"> </paper-icon-button>
+
+        <!-- <iron-image 
                     style="width:100%; height:auto;"  -->
-                <iron-image 
-                    style="width:100%; height:400px;" 
-                    src="[[imageSrc]]" 
-                    sizing="contain">
-                </iron-image>
-            </template>
-        </dom-if>
-    </template>
-    <script>
-        /**
-         * 카메라
-         */
-        class ThingsCamera extends Polymer.Element {
-            static get is() { return 'things-camera'; }
+        <iron-image src="[[imageSrc]]" sizing="contain"> </iron-image>
+      </template>
+    </dom-if>
+  </template>
+  <script>
+    /**
+     * 카메라
+     */
+    class ThingsCamera extends Polymer.Element {
+      static get is() {
+        return "things-camera";
+      }
 
-            static get properties() {
-                return {
-                    scanFieldName: {
-                        type: String,
-                        value: 'lotId'
-                    },
+      static get properties() {
+        return {
+          scanFieldName: {
+            type: String,
+            value: "lotId",
+          },
 
-                    isEnable: {
-                        type: Boolean,
-                        readonly: true,
-                        notify: true,
-                        computed: '_computeIsEnable()'
-                    },
+          isEnable: {
+            type: Boolean,
+            readonly: true,
+            notify: true,
+            computed: "_computeIsEnable()",
+          },
 
-                    srcType: Number,
-                    imageSrc: {
-                        type: String,
-                        notify: true
-                    },
-                    toastMessage: String
-                }
-            }
-
-            _computeIsEnable() {
-                return navigator && navigator.camera ? true : false;
-            }
-
-            openCamera(selection) {
-                var options = this.setOptions(this.srcType);
-
-                var me = this;
-                navigator.camera.getPicture((imageData) => {
-                    me.imageSrc = "data:image/jpeg;base64," + imageData;
-                }, (error) => {
-                    me.toastMessage = error;
-                    me.shadowRoot.querySelector('paper-toast').open();
-                }, options);
-            }
-
-            setOptions(srcType) {
-                var options = {
-                    // Some common settings are 20, 50, and 100
-                    quality: 50,
-                    // destinationType: Camera.DestinationType.FILE_URI,
-                    destinationType: Camera.DestinationType.DATA_URL,
-                    // In this app, dynamically set the picture source, Camera or photo gallery
-                    sourceType: srcType,
-                    encodingType: Camera.EncodingType.JPEG,
-                    mediaType: Camera.MediaType.PICTURE,
-                    allowEdit: false,
-                    correctOrientation: true,  //Corrects Android orientation quirks
-                }
-                return options;
-            }
-
-            _handleTapCamera() {
-                this.srcType = Camera.PictureSourceType.CAMERA;
-                this.openCamera();
-            }
-
-            _handleTapPhotoLib() {
-                this.srcType = Camera.PictureSourceType.PHOTOLIBRARY;
-                this.openCamera();
-            }
+          srcType: Number,
+          imageSrc: {
+            type: String,
+            notify: true,
+          },
+          toastMessage: String,
         };
+      }
 
-        customElements.define(ThingsCamera.is, ThingsCamera);
-    </script>
+      _computeIsEnable() {
+        return navigator && navigator.camera ? true : false;
+      }
+
+      openCamera(selection) {
+        var options = this.setOptions(this.srcType);
+
+        var me = this;
+        navigator.camera.getPicture(
+          (imageData) => {
+            me.imageSrc = "data:image/jpeg;base64," + imageData;
+          },
+          (error) => {
+            me.toastMessage = error;
+            me.shadowRoot.querySelector("paper-toast").open();
+          },
+          options
+        );
+      }
+
+      setOptions(srcType) {
+        var options = {
+          // Some common settings are 20, 50, and 100
+          quality: 50,
+          // destinationType: Camera.DestinationType.FILE_URI,
+          destinationType: Camera.DestinationType.DATA_URL,
+          // In this app, dynamically set the picture source, Camera or photo gallery
+          sourceType: srcType,
+          encodingType: Camera.EncodingType.JPEG,
+          mediaType: Camera.MediaType.PICTURE,
+          allowEdit: false,
+          correctOrientation: true, //Corrects Android orientation quirks
+        };
+        return options;
+      }
+
+      _handleTapCamera() {
+        this.srcType = Camera.PictureSourceType.CAMERA;
+        this.openCamera();
+      }
+
+      _handleTapPhotoLib() {
+        this.srcType = Camera.PictureSourceType.PHOTOLIBRARY;
+        this.openCamera();
+      }
+    }
+
+    customElements.define(ThingsCamera.is, ThingsCamera);
+  </script>
 </dom-module>

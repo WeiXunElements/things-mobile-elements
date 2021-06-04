@@ -1,9 +1,9 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
 
 <dom-module id="things-board-item">
   <template>
@@ -11,10 +11,10 @@ Copyright © HatioLab Inc. All rights reserved.
       :host {
         /* display: block; */
         word-wrap: break-word;
-        padding:5px 5px;
-        border:1px solid rgba(0,0,0,.1);
-        color:#fff;
-        font-size:14px;
+        padding: 5px 5px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: #fff;
+        font-size: 14px;
       }
 
       .rect {
@@ -27,32 +27,33 @@ Copyright © HatioLab Inc. All rights reserved.
     </style>
 
     <p id="content">[[value]]</p>
-
   </template>
 
   <script>
     class ThingsBoardItem extends Polymer.Element {
-      static get is() { return 'things-board-item'; }
+      static get is() {
+        return "things-board-item";
+      }
 
       static get properties() {
         return {
           type: {
             type: String,
-            value: 'rect' // rect, circle
+            value: "rect", // rect, circle
           },
           state: {
             type: String,
-            value: 'EMPTY',  // NOTI, EMPTY, FULL
-            observer: '_stateChanged'
+            value: "EMPTY", // NOTI, EMPTY, FULL
+            observer: "_stateChanged",
           },
           valueObj: {
             type: Object,
-            observer: '_valueObjChanged'
+            observer: "_valueObjChanged",
           },
           hideFieldCount: {
             type: Number,
-            value: 0
-          }
+            value: 0,
+          },
         };
       }
 
@@ -63,11 +64,11 @@ Copyright © HatioLab Inc. All rights reserved.
       _valueObjChanged(valueObj) {
         var values = [];
 
-        if (typeof valueObj === 'object') {
+        if (typeof valueObj === "object") {
           let keys = Object.keys(valueObj);
           if (keys.length > 0) {
             keys.forEach((prop) => {
-              if (typeof t === 'function') {
+              if (typeof t === "function") {
                 values.push(t(`text.${prop}`) + `: ${valueObj[prop]} `);
               } else {
                 values.push(`${prop}: ${valueObj[prop]} `);
@@ -79,19 +80,19 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         values = values.slice(0, values.length - this.hideFieldCount);
-        var p = values.join('<br>');
-        this.shadowRoot.getElementById('content').innerHTML = p;
+        var p = values.join("<br>");
+        this.shadowRoot.getElementById("content").innerHTML = p;
       }
 
       _stateChanged(state) {
         switch (state) {
-          case 'FULL':
+          case "FULL":
             this.style.backgroundColor = "#1DB78D";
             break;
-          case 'NOTI':
+          case "NOTI":
             this.style.backgroundColor = "#F27429";
             break;
-          case 'EMPTY':
+          case "EMPTY":
             this.style.backgroundColor = "#B2BAC1";
             break;
           default:

@@ -1,64 +1,68 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-toast/paper-toast.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-toast/paper-toast.html" />
 
 <dom-module id="things-social-share">
-    <template>
-        <paper-icon-button hidden="[[hideIcon]]"></paper-icon-button>
-        <paper-toast horizontal-align="left" text="[[toastMessage]]">
-        </paper-toast>
-    </template>
+  <template>
+    <paper-icon-button hidden="[[hideIcon]]"></paper-icon-button>
+    <paper-toast horizontal-align="left" text="[[toastMessage]]"> </paper-toast>
+  </template>
 
-    <script>
-        class ThingsSocialShare extends Polymer.Element {
-            static get is() { return 'things-social-share'; }
+  <script>
+    class ThingsSocialShare extends Polymer.Element {
+      static get is() {
+        return "things-social-share";
+      }
 
-            static get properties() {
-                return {
-                    isEnable: {
-                        type: Boolean,
-                        computed: '_computeIsEnable()',
-                    },
+      static get properties() {
+        return {
+          isEnable: {
+            type: Boolean,
+            computed: "_computeIsEnable()",
+          },
 
-                    hideIcon: {
-                        type: Boolean,
-                        value: true
-                    },
+          hideIcon: {
+            type: Boolean,
+            value: true,
+          },
 
-                    toastMessage: String
-                }
-            }
-
-            _computeIsEnable() {
-                if (typeof navigator.share === 'undefined' || !navigator.share) {
-                    return false;
-                }
-
-                return true;
-            }
-
-            shareLink(pageUrl, title, text) {
-                if (!this.isEnable) {
-                    alert('Cordova not avaliable');
-                    return;
-                }
-
-                navigator.share({
-                    'url': pageUrl,
-                    'title': title,
-                    'text': text,
-                }).then(function () {
-                    console.log('Successful share');
-                }).catch(function (error) {
-                    console.log('Error sharing:', error)
-                });
-            }
+          toastMessage: String,
         };
+      }
 
-        customElements.define(ThingsSocialShare.is, ThingsSocialShare);
-    </script>
+      _computeIsEnable() {
+        if (typeof navigator.share === "undefined" || !navigator.share) {
+          return false;
+        }
+
+        return true;
+      }
+
+      shareLink(pageUrl, title, text) {
+        if (!this.isEnable) {
+          alert("Cordova not avaliable");
+          return;
+        }
+
+        navigator
+          .share({
+            url: pageUrl,
+            title: title,
+            text: text,
+          })
+          .then(function () {
+            console.log("Successful share");
+          })
+          .catch(function (error) {
+            console.log("Error sharing:", error);
+          });
+      }
+    }
+
+    customElements.define(ThingsSocialShare.is, ThingsSocialShare);
+  </script>
 </dom-module>

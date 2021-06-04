@@ -1,10 +1,10 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="./things-board-item.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="./things-board-item.html" />
 
 <dom-module id="things-info-board">
   <template>
@@ -20,7 +20,7 @@ Copyright © HatioLab Inc. All rights reserved.
 
       .grid {
         display: grid;
-        height: calc(100% - 35px);  /*FIXME: title이 없을때 처리.*/
+        height: calc(100% - 35px); /*FIXME: title이 없을때 처리.*/
         grid-template-columns: 50% 50%; /*FIXME: 속성으로 변환가능하게 처리.*/
         grid-auto-rows: 1fr;
       }
@@ -41,26 +41,27 @@ Copyright © HatioLab Inc. All rights reserved.
     </div>
 
     <!-- <p style="white-space: pre-line;">[[rows]]</p> -->
-
   </template>
 
   <script>
     class ThingsInfoBoard extends Polymer.Element {
-      static get is() { return 'things-info-board'; }
+      static get is() {
+        return "things-info-board";
+      }
 
       static get properties() {
         return {
           title: String,
           column: {
             type: Number,
-            value: 2
+            value: 2,
           },
           items: {
             type: Array,
-            computed: '_computeItems(data)'
+            computed: "_computeItems(data)",
           },
           data: Object,
-          skipEmpty: Boolean
+          skipEmpty: Boolean,
         };
       }
 
@@ -78,7 +79,7 @@ Copyright © HatioLab Inc. All rights reserved.
             }
           }
 
-          if (typeof t === 'function') {
+          if (typeof t === "function") {
             items.push(t(`label.${key}`) + `: ${data[key]} `);
           } else {
             items.push(`${key}: ${data[key]}`);

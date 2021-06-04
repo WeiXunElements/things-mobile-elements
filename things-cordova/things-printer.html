@@ -1,54 +1,54 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../paper-toast/paper-toast.html">
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../iron-icons/iron-icons.html">
+<link rel="import" href="../../paper-toast/paper-toast.html" />
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../../iron-icons/iron-icons.html" />
 
 <dom-module id="things-printer">
-    <template>
-        <style>
-            :host {
-                display: inline;
-            }
-        </style>
+  <template>
+    <style>
+      :host {
+        display: inline;
+      }
+    </style>
 
-        <paper-toast horizontal-align="middle" text="[[toastMessage]]">
-        </paper-toast>
+    <paper-toast horizontal-align="middle" text="[[toastMessage]]"> </paper-toast>
 
-        <paper-icon-button id="icon" icon="print" on-tap="_handlePrint">
-        </paper-icon-button>
-    </template>
-    <script>
-        class ThingsPrinter extends Polymer.Element {
-            static get is() { return 'things-printer'; }
+    <paper-icon-button id="icon" icon="print" on-tap="_handlePrint"> </paper-icon-button>
+  </template>
+  <script>
+    class ThingsPrinter extends Polymer.Element {
+      static get is() {
+        return "things-printer";
+      }
 
-            static get properties() {
-                return {
-                    isEnable: {
-                        type: Boolean,
-                        computed: '_computeIsEnable()'
-                    },
-                    printTarget: Object
-                };
-            }
-
-            _computeIsEnable() {
-                return cordova && cordova.plugins && cordova.plugins.printer ? true : false;
-            }
-
-            _handlePrint() {
-                if (typeof cordova != 'undefined') {
-                    cordova.plugins.printer.print(this.printTarget, 'Document.html');
-                } else {
-                    window.print();
-                }
-            }
+      static get properties() {
+        return {
+          isEnable: {
+            type: Boolean,
+            computed: "_computeIsEnable()",
+          },
+          printTarget: Object,
         };
+      }
 
-        customElements.define(ThingsPrinter.is, ThingsPrinter);
-    </script>
+      _computeIsEnable() {
+        return cordova && cordova.plugins && cordova.plugins.printer ? true : false;
+      }
+
+      _handlePrint() {
+        if (typeof cordova != "undefined") {
+          cordova.plugins.printer.print(this.printTarget, "Document.html");
+        } else {
+          window.print();
+        }
+      }
+    }
+
+    customElements.define(ThingsPrinter.is, ThingsPrinter);
+  </script>
 </dom-module>

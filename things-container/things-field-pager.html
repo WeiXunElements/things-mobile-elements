@@ -1,10 +1,10 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../l2t-paper-slider/l2t-paper-slider.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../l2t-paper-slider/l2t-paper-slider.html" />
 
 <dom-module id="things-field-pager">
   <template>
@@ -14,8 +14,7 @@ Copyright © HatioLab Inc. All rights reserved.
           width: 9px;
           height: 9px;
         }
-        ;
-        --paper-slide-dot: rgba(113, 111, 179, .5);
+        --paper-slide-dot: rgba(113, 111, 179, 0.5);
         --paper-slide-dot-selected: #716fb3;
       }
 
@@ -33,13 +32,14 @@ Copyright © HatioLab Inc. All rights reserved.
       }
     </style>
 
-    <l2t-paper-slider id="pager" total-slides="[[pages]]">
-    </l2t-paper-slider>
+    <l2t-paper-slider id="pager" total-slides="[[pages]]"> </l2t-paper-slider>
   </template>
 
   <script type="text/javascript">
     class ThingsFieldPager extends Polymer.Element {
-      static get is() { return 'things-field-pager' }
+      static get is() {
+        return "things-field-pager";
+      }
 
       static get properties() {
         return {
@@ -50,12 +50,12 @@ Copyright © HatioLab Inc. All rights reserved.
            */
           fields: {
             type: Array,
-            observer: '_fieldsChanged'
+            observer: "_fieldsChanged",
           },
 
           page: {
             type: Number,
-            value: 0
+            value: 0,
           },
 
           /**
@@ -65,7 +65,7 @@ Copyright © HatioLab Inc. All rights reserved.
            */
           limit: {
             type: Number,
-            value: 2
+            value: 2,
           },
 
           // selectedPage: {
@@ -96,17 +96,16 @@ Copyright © HatioLab Inc. All rights reserved.
           elPages.removeChild(elPages.firstChild);
         }
 
-        if (!fields || fields.length <= 0)
-          return;
+        if (!fields || fields.length <= 0) return;
 
         /* build page */
         var limit = this.limit;
         this.pages = Math.floor(fields.length / limit) + (fields.length % limit > 0 ? 1 : 0);
         for (var i = 0; i < this.pages; i++) {
-          let pageDiv = document.createElement('paper-slide');
-          pageDiv.setAttribute('class', 'items');
+          let pageDiv = document.createElement("paper-slide");
+          pageDiv.setAttribute("class", "items");
           // pageDiv.setAttribute('class', 'flex layout vertical');
-          pageDiv.setAttribute('id', 'page' + i);
+          pageDiv.setAttribute("id", "page" + i);
           Polymer.dom(elPages).appendChild(pageDiv);
 
           if ((i + 1) * limit > fields.length) {
@@ -127,7 +126,7 @@ Copyright © HatioLab Inc. All rights reserved.
         }
 
         fields.forEach((field) => {
-          field.setAttribute('class', 'item');
+          field.setAttribute("class", "item");
           container.appendChild(field);
         });
 

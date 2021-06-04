@@ -1,12 +1,12 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../iron-list/iron-list.html">
-<link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
-<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../iron-list/iron-list.html" />
+<link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html" />
+<link rel="import" href="../../paper-item/paper-item.html" />
 
 <dom-module id="things-list">
   <template>
@@ -25,13 +25,14 @@ Copyright © HatioLab Inc. All rights reserved.
 
       .primary {
         font-size: 16px;
-        color:#333
+        color: #333;
       }
 
-      .shortText, .longText {
-        padding-top:2px;
+      .shortText,
+      .longText {
+        padding-top: 2px;
         font-size: 14px;
-        color:#999
+        color: #999;
       }
 
       .longText {
@@ -48,55 +49,53 @@ Copyright © HatioLab Inc. All rights reserved.
           font-size: 14px;
         }
       }
-      
     </style>
 
     <iron-list items="[[items]]" scroll-target="[[scrollTarget]]">
       <template>
-        <paper-item 
-          class="item pad"
-          style="[[_computeItemStyle(item)]]" 
-          record-obj="[[item]]" 
-          on-tap="_tapItem">
+        <paper-item class="item pad" style="[[_computeItemStyle(item)]]" record-obj="[[item]]" on-tap="_tapItem">
           <span class="primary">[[_buildTitle(item)]]</span>
           <div class="shortText">[[_buildInfo(item)]]</div>
         </paper-item>
       </template>
     </iron-list>
 
-    <iron-scroll-threshold id="scrollTheshold"
+    <iron-scroll-threshold
+      id="scrollTheshold"
       lower-threshold="50"
       on-lower-threshold="_loadMoreData"
-      scroll-target="[[scrollTarget]]">
+      scroll-target="[[scrollTarget]]"
+    >
     </iron-scroll-threshold>
-
   </template>
 
   <script>
     class ThingsList extends Polymer.Element {
-      static get is() { return 'things-list'; }
+      static get is() {
+        return "things-list";
+      }
 
       static get properties() {
         return {
           items: {
             type: Array,
-            observer: '_itemsChanged'
+            observer: "_itemsChanged",
           },
 
           titleField: {
             type: String,
-            value: 'name'
+            value: "name",
           },
 
           infoFields: {
             type: Array,
-            value: [ 'description' ]
+            value: ["description"],
           },
 
           scrollTarget: {
             type: Object,
-            value: 'document'
-          }
+            value: "document",
+          },
           // page: Number,
           // totalCount: Number
         };
@@ -107,7 +106,7 @@ Copyright © HatioLab Inc. All rights reserved.
       }
 
       _computeItemStyle(item) {
-        return item.style ? item.style : "var(--things-white-background-color);";  // FIXME
+        return item.style ? item.style : "var(--things-white-background-color);"; // FIXME
       }
 
       _buildTitle(item) {
@@ -123,7 +122,7 @@ Copyright © HatioLab Inc. All rights reserved.
           }
         }
 
-        var info = infoValues.join(', ');
+        var info = infoValues.join(", ");
         return info;
       }
 
@@ -133,15 +132,16 @@ Copyright © HatioLab Inc. All rights reserved.
       }
 
       _loadMoreData() {
-        var event = new CustomEvent('next-page');
+        var event = new CustomEvent("next-page");
         this.dispatchEvent(event);
       }
 
-      _tapItem(e) { // show detail info
+      _tapItem(e) {
+        // show detail info
         var currentTarget = e.currentTarget;
         var recordObj = currentTarget.recordObj;
 
-        var event = new CustomEvent('item-selected', {detail: recordObj, bubbles: true, composed: true});
+        var event = new CustomEvent("item-selected", { detail: recordObj, bubbles: true, composed: true });
         this.dispatchEvent(event);
       }
 

@@ -1,195 +1,327 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../vaadin-combo-box/vaadin-combo-box.html">
-<link rel="import" href="../../paper-item/paper-item-body.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../vaadin-combo-box/vaadin-combo-box.html" />
+<link rel="import" href="../../paper-item/paper-item-body.html" />
 
-<link rel="import" href="../things-sys/sys-ajax.html">
+<link rel="import" href="../things-sys/sys-ajax.html" />
 
 <dom-module id="things-combo-box">
-	<template>
-		<style>
-			vaadin-combo-box {
-				width: 100%;
-			}
-		</style>
-		<sys-ajax auto disable-spinner curl="[[curl]]" select-fields="[[selectFields]]" custom-params="[[queryParams]]" last-response="{{data}}">
-		</sys-ajax>
+  <template>
+    <style>
+      vaadin-combo-box {
+        width: 100%;
+      }
+    </style>
+    <sys-ajax
+      role="loadData"
+      auto="[[auto]]"
+      disable-spinner
+      curl="[[curl]]"
+      select-fields="[[selectFields]]"
+      custom-params="[[customParams]]"
+      last-response="{{data}}"
+    >
+    </sys-ajax>
 
-		<vaadin-combo-box label="[[label]]" items="[[items]]" name="[[name]]" value="{{value}}" filter="{{filter}}" readonly="[[readonly]]"
-		 item-value-path="[[valuePath]]" item-label-path="[[labelPath]]" allow-custom-value="[[allowCustomValue]]" on-keyup="_handleKeyUp"
-		 on-value-changed="_handleValueChanged">
-			<template>
-				<paper-item-body>
+    <vaadin-combo-box
+      label="[[label]]"
+      items="[[items]]"
+      name="[[name]]"
+      value="{{value}}"
+      filter="{{filter}}"
+      readonly="[[readonly]]"
+      item-value-path="[[valuePath]]"
+      item-label-path="[[labelPath]]"
+      allow-custom-value="[[allowCustomValue]]"
+      on-keyup="_handleKeyUp"
+      on-value-changed="_handleValueChanged"
+    >
+      <template>
+        <!-- <paper-item-body>
 					<div>[[item.name]]: [[item.description]]</div>
 					<div hidden>[[item.id]]</div>
-				</paper-item-body>
-			</template>
-		</vaadin-combo-box>
-	</template>
+				</paper-item-body> -->
+        <paper-item-body>
+          <div>[[_computeListValues(item)]]</div>
+          <div hidden>[[_computeValueField(item)]]</div>
+        </paper-item-body>
+      </template>
+    </vaadin-combo-box>
+  </template>
 
-	<script>
-		class ThingsComboBox extends Polymer.Element {
-			static get is() { return 'things-combo-box'; }
+  <script>
+    class ThingsComboBox extends Polymer.Element {
+      static get is() {
+        return "things-combo-box";
+      }
 
-			static get properties() {
-				return {
-					resourceType: {
-						type: String,	// ENTITY, CODE
-						observer: '_resourceTypeChanged'
-					},
-					resourceRef: String,
-					label: String,
-					name: String,
-					curl: {
-						type: String,
-						computed: '_computeCurl(resourceType, resourceRef)'
-					},
-					selectFields: {
-						type: Array,
-						value: ['id', 'name', 'description']
-					},
-					queryParams: Object,
-					valuePath: String,
-					labelPath: String,
-					filter: String,
-					pageSize: {
-						type: Number,
-						value: 50
-					},
-					/**
-					* lastRequest's response.
-					*
-					* Note that lastResponse and lastError are set when lastRequest finishes,
-					* so if loading is true, then lastResponse and lastError will correspond
-					* to the result of the previous request.
-					*
-					* The type of the response is determined by the value of `handleAs` at
-					* the time that the request was generated.
-					*
-					* @type {Object}
-					*/
-					data: {
-						type: Object,
-						observer: '_dataChanged'
-					},
+      static get properties() {
+        return {
+          auto: {
+            type: Boolean,
+            value: true,
+          },
+          resourceType: {
+            type: String, // ENTITY, CODE
+            observer: "_resourceTypeChanged",
+          },
+          resourceRef: String,
+          label: String,
+          name: String,
+          curl: {
+            type: String,
+            computed: "_computeCurl(resourceType, resourceRef)",
+          },
+          selectFields: {
+            type: Array,
+            value: ["id", "name", "description"],
+          },
+          _initParams: Object,
+          queryParams: {
+            type: Object,
+            observer: "_queryParamsChanged",
+          },
+          paramsNecessary: {
+            type: Boolean,
+            value: false,
+          },
+          customParams: Object,
+          valuePath: String,
+          labelPath: String,
+          descPath: String,
+          filter: String,
+          pageSize: {
+            type: Number,
+            value: 200,
+          },
+          /**
+           * lastRequest's response.
+           *
+           * Note that lastResponse and lastError are set when lastRequest finishes,
+           * so if loading is true, then lastResponse and lastError will correspond
+           * to the result of the previous request.
+           *
+           * The type of the response is determined by the value of `handleAs` at
+           * the time that the request was generated.
+           *
+           * @type {Object}
+           */
+          data: {
+            type: Object,
+            observer: "_dataChanged",
+          },
 
-					errMessage: String,
-					items: Array,
-					value: {
-						type: String,
-						notify: true
-					},
-					objValue: {
-						type: Object,
-						notify: true
-					},
-					opened: Boolean,
-					disabled: Boolean,
-					readonly: Boolean,
-					hasValue: Boolean,
-					invalid: Boolean,
-					focused: Boolean,
-					focusRing: Boolean,
-					loading: Boolean,
-					allowCustomValue: Boolean
-				}
-			}
+          errMessage: String,
+          items: Array,
+          value: {
+            type: String,
+            notify: true,
+          },
+          objValue: {
+            type: Object,
+            notify: true,
+            computed: "_computeObjValue(value, label)",
+          },
+          opened: Boolean,
+          disabled: Boolean,
+          readonly: Boolean,
+          hasValue: Boolean,
+          invalid: Boolean,
+          focused: Boolean,
+          focusRing: Boolean,
+          loading: Boolean,
+          allowCustomValue: Boolean,
+        };
+      }
 
-			connectedCallback() {
-				// console.log('connectedCallback');
-				super.connectedCallback();
-			}
+      connectedCallback() {
+        // console.log('connectedCallback');
+        super.connectedCallback();
 
-			disconnectedCallback() {
-				super.disconnectedCallback();
-			}
+        // FIXME
+        var style = document.createElement("style");
+        style.innerHTML = "vaadin-text-field { \n";
+        style.innerHTML += "display: block;\n";
+        style.innerHTML += "padding: 8px 0; \n";
+        style.innerHTML += "@apply --paper-input-container;\n";
+        style.innerHTML += "\n}";
+        this.shadowRoot.querySelector("vaadin-combo-box").shadowRoot.appendChild(style);
+      }
 
-			_computeCurl(resourceType, resourceRef) {
-				var url = '';
-				this.queryParams = {}
-				if (resourceType === 'CODE') {
-					this.pageSize = 500;
-					if (resourceRef) {
-						this.queryParams.name = resourceRef;
-					}
-					url += '/common_codes/show_by_name';
-				} else {
-					url += '/data/entity';
-					if (resourceRef) {
-						this.queryParams.name = resourceRef;
-					}
-				}
-				this.queryParams.limit = this.pageSize;
+      disconnectedCallback() {
+        super.disconnectedCallback();
+      }
 
-				return url;
-			}
+      _computeCurl(resourceType, resourceRef) {
+        if (!resourceType || !resourceRef) {
+          return;
+        }
 
-			// _computeObjValue(value) {
-			// 	var obj = {};
-			// 	obj[this.valuePath] = value;
-			// 	obj[this.labelPath] = label;
-			// 	console.log(obj);
-			// 	return obj;
-			// }
+        var url = "";
+        this._initParams = {};
+        this._initParams.name = resourceRef;
+        this._initParams.limit = this.pageSize;
+        this.customParams = Object.assign({}, this._initParams, this.customParams);
+        switch (resourceType) {
+          case "CODE":
+            url = "/common_codes/show_by_name";
+            break;
+          case "ENTITY":
+            url = "/data/entity";
+            break;
+          case "SERVICE":
+            url = "/data/service";
+            break;
+        }
 
-			_resourceTypeChanged(resourceType) {
-				if (resourceType === 'CODE') {
-					this.valuePath = 'name';
-					this.labelPath = 'description';
-				} else {
-					this.valuePath = 'id';
-					this.labelPath = 'name';
-				}
-			}
+        return url;
+      }
 
-			_dataChanged(data) {
-				if (!data) {
-					return;
-				}
+      _computeListValues(item) {
+        if (!item) {
+          return;
+        }
 
-				var items = [];
-				var valuePath = this.valuePath;
-				var labelPath = this.labelPath;
-				var resourceType = this.resourceType;
-				data.items.forEach((item) => {
-					if (resourceType === 'CODE') {
-						items.push({ name: item[valuePath], description: item[labelPath] });
-					} else {
-						items.push({ id: item[valuePath], name: item[labelPath], description: item.description });
-					}
-				});
+        var value = "";
+        switch (this.resourceType) {
+          case "CODE":
+            value = `${item[this.valuePath]}: ${item[this.labelPath]}`;
+            break;
+          case "ENTITY":
+          case "SERVICE":
+            value = `${item[this.labelPath]}: ` + (item[this.descPath] || "");
+            break;
+          default:
+            value = `${item[this.valuePath]}: ${item[this.labelPath]}`;
+        }
 
-				this.items = items;
-			}
+        return value;
+      }
 
-			_handleKeyUp(e) {
-				e.preventDefault();
+      _computeValueField(item) {
+        if (!item) {
+          return;
+        }
 
-				// Clear the timeout if it has already been set.
-				// This will prevent the previous task from executing
-				// if it has been less than <MILLISECONDS>
-				if (this.timeout) {
-					clearTimeout(this.timeout);
-				}
+        return `${item[this.valuePath]}`;
+      }
 
-				// Make a new timeout set to go off in 800ms
-				this.timeout = setTimeout((me) => {
-					var params = Object.assign({}, me.queryParams, { keyword: me.filter });
-					me.queryParams = params;
-				}, 800, this);
-			}
+      _computeObjValue(value, label) {
+        if (!value || !label) {
+          return;
+        }
 
-			_handleValueChanged(e) {
-				var event = new CustomEvent('value-changed', { 'detail': this.value });
-				this.dispatchEvent(event);
-			}
-		}
+        if (!this.items) {
+          return;
+        }
 
-		customElements.define(ThingsComboBox.is, ThingsComboBox);
-	</script>
+        var obj = {};
+        var items = this.items;
+        for (let i = 0; i < items.length; i++) {
+          let item = items[i];
+          if (item[this.valuePath] === value) {
+            obj = item;
+            break;
+          }
+        }
 
+        return obj;
+      }
+
+      _resourceTypeChanged(resourceType) {
+        switch (resourceType) {
+          case "CODE":
+            this.valuePath = this.valuePath || "name";
+            this.labelPath = this.labelPath || "description";
+            break;
+          case "ENTITY":
+            this.valuePath = this.valuePath || "id";
+            this.labelPath = this.labelPath || "name";
+            this.descPath = this.descPath || "description";
+            break;
+          case "SERVICE":
+            break;
+        }
+      }
+
+      _queryParamsChanged(queryParams) {
+        var queryString = "";
+        if (queryParams instanceof Array) {
+          queryString = JSON.stringify(queryParams);
+        } else if (queryParams instanceof Object) {
+          var objString = [];
+          Object.keys(queryParams).forEach((key, idx) => {
+            objString.push({
+              name: key,
+              value: queryParams[key],
+            });
+          });
+
+          queryString = JSON.stringify(objString);
+        }
+
+        var params = { query: queryString };
+        this.customParams = Object.assign({}, this._initParams || {}, params);
+
+        // let ajax = this.shadowRoot.querySelector('[role=loadData]');
+        // ajax.generateRequest();
+      }
+
+      _dataChanged(data) {
+        if (!data) {
+          return;
+        }
+
+        if (data instanceof Array) {
+          // do nothing
+        } else {
+          data = data.items;
+        }
+
+        var items = [];
+        data.forEach((item) => {
+          let obj = Object.assign({}, item);
+          items.push(obj);
+        });
+
+        this.items = items;
+      }
+
+      _handleKeyUp(e) {
+        e.preventDefault();
+
+        if (this.resourceType != "ENTITY") {
+          return;
+        }
+
+        // Clear the timeout if it has already been set.
+        // This will prevent the previous task from executing
+        // if it has been less than <MILLISECONDS>
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+        }
+
+        // Make a new timeout set to go off in 800ms
+        this.timeout = setTimeout(
+          (me) => {
+            var params = Object.assign({}, me._initParams, me.queryParams, { keyword: me.filter });
+            me.customParams = params;
+          },
+          800,
+          this
+        );
+      }
+
+      _handleValueChanged(e) {
+        var event = new CustomEvent("value-changed", { detail: this.value });
+        this.dispatchEvent(event);
+      }
+    }
+
+    customElements.define(ThingsComboBox.is, ThingsComboBox);
+  </script>
 </dom-module>

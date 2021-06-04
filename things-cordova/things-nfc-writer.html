@@ -1,123 +1,129 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-toast/paper-toast.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-toast/paper-toast.html" />
 
 <dom-module id="things-nfc-writer">
-    <template>
-        <style>
-            :host {
-                display: inline;
-            }
-        </style>
+  <template>
+    <style>
+      :host {
+        display: inline;
+      }
+    </style>
 
-        <paper-toast></paper-toast>
-    </template>
-    <script>
-        class ThingsNfcWriter extends Polymer.Element {
-            static get is() { return 'things-nfc-writer'; }
+    <paper-toast></paper-toast>
+  </template>
+  <script>
+    class ThingsNfcWriter extends Polymer.Element {
+      static get is() {
+        return "things-nfc-writer";
+      }
 
-            static get properties() {
-                return {
-                    isEnable: {
-                        type: Boolean,
-                        readonly: true,
-                        computed: '_computeIsEnable()'
-                    },
-                    isListen: {
-                        type: Boolean,
-                        observer: '_isListenChanged'
-                    },
-                    ndefCallback: {
-                        type: Object,
-                        computed: '_computeNdefCallback()'
-                    },
-                    values: {
-                        type: Object,
-                        notify: true
-                    }
-                };
-            }
+      static get properties() {
+        return {
+          isEnable: {
+            type: Boolean,
+            readonly: true,
+            computed: "_computeIsEnable()",
+          },
+          isListen: {
+            type: Boolean,
+            observer: "_isListenChanged",
+          },
+          ndefCallback: {
+            type: Object,
+            computed: "_computeNdefCallback()",
+          },
+          values: {
+            type: Object,
+            notify: true,
+          },
+        };
+      }
 
-            _computeIsEnable() {
-                return (typeof ndef == 'undefined' || !ndef) ? false : true;
-            }
+      _computeIsEnable() {
+        return typeof ndef == "undefined" || !ndef ? false : true;
+      }
 
-            _isListenChanged(isListen) {
-                if (!this.isEnable) {
-                    return;
-                }
-                if (isListen) {
-                    nfc.addNdefListener(this.ndefCallback, this.success, this.fail);
-                    // nfc.addTagDiscoveredListener(this.writeNfcData, this.success, this.fail);
-                } else {
-                    nfc.removeNdefListener(this.ndefCallback, this.success, this.fail);
-                    // nfc.removeTagDiscoveredListener(this.writeNfcData, this.success, this.fail);
-                }
-            }
+      _isListenChanged(isListen) {
+        if (!this.isEnable) {
+          return;
+        }
+        if (isListen) {
+          nfc.addNdefListener(this.ndefCallback, this.success, this.fail);
+          // nfc.addTagDiscoveredListener(this.writeNfcData, this.success, this.fail);
+        } else {
+          nfc.removeNdefListener(this.ndefCallback, this.success, this.fail);
+          // nfc.removeTagDiscoveredListener(this.writeNfcData, this.success, this.fail);
+        }
+      }
 
-            _computeNdefCallback() {
-                var callback = (event) => {
-                    this.writeNfcData.call(this);
-                }
+      _computeNdefCallback() {
+        var callback = (event) => {
+          this.writeNfcData.call(this);
+        };
 
-                return callback;
-            }
+        return callback;
+      }
 
-            writeNfcData () {
-                if (!this.isEnable) {
-                    console.warn('NFC is not avaliable!');
-                    return;
-                }
-
-                if (!this.isListen) {
-                    return;
-                }
-
-                var values = this.values;
-                if (!values) {
-                    return;
-                }
-
-                try {
-                    values = JSON.stringify(values);
-                } catch (e) {
-                    // alert('Json format error');
-                    return;
-                }
-
-                // var record = ndef.mimeMediaRecord('text/plain', nfc.stringToBytes(value));
-                var record = ndef.textRecord(values);
-
-                nfc.write([record], () => {
-                    console.log('NFC write success!');
-                    this.values = {};
-                    // window.plugins.toast.showShortBottom(nfcWriter.labelSuccess);
-                }, (reason) => {
-                    alert(reason);
-                });
-            }
-
-            // clearNfcData () {
-            //     nfc.write([''], () => {
-            //         // window.plugins.toast.showShortBottom(nfcWriter.labelSuccess);
-            //     }, (reason) => {
-            //         alert(nfcWriter.writeFailMsg + ': ' + reason);
-            //     });
-            // }
-
-            success () {
-                console.log("Listening for NDEF tags");
-            }
-
-            fail (reason) {
-                alert(nfcWriter.nfcError + ': ' + reason);
-            }
+      writeNfcData() {
+        if (!this.isEnable) {
+          console.warn("NFC is not avaliable!");
+          return;
         }
 
-        customElements.define(ThingsNfcWriter.is, ThingsNfcWriter);
-    </script>
+        if (!this.isListen) {
+          return;
+        }
+
+        var values = this.values;
+        if (!values) {
+          return;
+        }
+
+        try {
+          values = JSON.stringify(values);
+        } catch (e) {
+          // alert('Json format error');
+          return;
+        }
+
+        // var record = ndef.mimeMediaRecord('text/plain', nfc.stringToBytes(value));
+        var record = ndef.textRecord(values);
+
+        nfc.write(
+          [record],
+          () => {
+            console.log("NFC write success!");
+            this.values = {};
+            // window.plugins.toast.showShortBottom(nfcWriter.labelSuccess);
+          },
+          (reason) => {
+            alert(reason);
+          }
+        );
+      }
+
+      // clearNfcData () {
+      //     nfc.write([''], () => {
+      //         // window.plugins.toast.showShortBottom(nfcWriter.labelSuccess);
+      //     }, (reason) => {
+      //         alert(nfcWriter.writeFailMsg + ': ' + reason);
+      //     });
+      // }
+
+      success() {
+        console.log("Listening for NDEF tags");
+      }
+
+      fail(reason) {
+        alert(nfcWriter.nfcError + ": " + reason);
+      }
+    }
+
+    customElements.define(ThingsNfcWriter.is, ThingsNfcWriter);
+  </script>
 </dom-module>

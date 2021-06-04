@@ -1,0 +1,214 @@
+<!--
+@license
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html" />
+
+<dom-module id="things-scalable-image">
+  <template>
+    <style>
+      :host {
+        --things-image-width: calc(100% - 20px);
+
+        --things-image-padding: 5px;
+        --things-image-border: 1px solid #f4f4f4;
+        --things-image-height: auto;
+        --things-image-min-width: 200px;
+        --things-image-min-height: 200px;
+
+        --things-button-radius: 10%;
+        --things-button-width: 40px;
+        --things-button-height: 40px;
+        --things-button-float: left;
+      }
+
+      div.container {
+        /* width: var(--my-width); */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      paper-icon-button {
+        width: var(--things-button-width);
+        height: var(--things-button-height);
+        float: var(--things-button-float);
+        margin-left: 5px;
+        /* background-color: var(--things-secondary-background-color); */
+        border-radius: var(--things-button-radius);
+        /* color: var(--things-white-background-color); */
+      }
+
+      img {
+        position: relative;
+        /* width: var(--things-image-width); */
+        /* height: var(--things-image-height); */
+        height: 200px;
+        left: 0px;
+        top: 0px;
+      }
+    </style>
+    <div class="container">
+      <img
+        id="image"
+        src="[[imageSrc]]"
+        on-touchstart="_startHandler"
+        on-touchmove="_moveHandler"
+        on-touchcancel="_endHandler"
+        on-touchend="_endHandler"
+      />
+      <dom-if if="[[ifRenew]]">
+        <template>
+          <paper-icon-button
+            style="color: rgb(247, 7, 7)"
+            icon="icons:autorenew"
+            on-tap="_tapReset"
+          ></paper-icon-button>
+        </template>
+      </dom-if>
+    </div>
+  </template>
+
+  <script>
+    var thiz = {};
+    class ThingsScalableImage extends Polymer.Element {
+      static get is() {
+        return "things-scalable-image";
+      }
+
+      static get properties() {
+        return {
+          imageSrc: Object,
+          startScale: Number,
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        thiz = this;
+      }
+
+      _tapReset() {
+        this.$.image.style = "scale(1)";
+        this.ifRenew = false;
+      }
+
+      _startHandler(ev) {
+        ev.preventDefault();
+        thiz.tpCache = [];
+        for (var i = 0; i < ev.targetTouches.length; i++) {
+          thiz.tpCache.push(ev.targetTouches[i]);
+        }
+
+        var styleTransform = ev.target.style.transform;
+        thiz.startScale = 1;
+
+        if (!styleTransform || styleTransform.length < 6) {
+          // do nothing;
+        } else {
+          thiz.startScale = parseFloat(styleTransform.substring(6));
+        }
+
+        if (ev.touches.length == 1 && ev.targetTouches.length == 1) {
+          thiz.startX = parseFloat(ev.target.style.left);
+          thiz.startY = parseFloat(ev.target.style.top);
+          if (isNaN(thiz.startX)) {
+            thiz.startX = 0;
+          }
+          if (isNaN(thiz.startY)) {
+            thiz.startY = 0;
+          }
+        }
+      }
+
+      _moveHandler(ev) {
+        var target = ev.target;
+        if (ev.touches.length == 1 && ev.targetTouches.length == 1) {
+          if (thiz.startScale <= 1) {
+            return;
+          }
+
+          target.style.left = thiz.startX + (ev.targetTouches[0].clientX - thiz.tpCache[0].clientX) + "px";
+          target.style.top = thiz.startY + (ev.targetTouches[0].clientY - thiz.tpCache[0].clientY) + "px";
+          return;
+        }
+
+        // Check this event for 2-touch Move/Pinch/Zoom gesture
+        // this.handlePinchZoom(ev);
+
+        // Check if the two target touches are the same ones that started
+        // the 2-touch
+        var tpCache = thiz.tpCache;
+        var point1 = -1,
+          point2 = -1;
+        for (let i = 0; i < tpCache.length; i++) {
+          if (tpCache[i].identifier == ev.targetTouches[0].identifier) {
+            point1 = i;
+          }
+
+          if (tpCache[i].identifier == ev.targetTouches[1].identifier) {
+            point2 = i;
+          }
+        }
+
+        if (point1 >= 0 && point2 >= 0) {
+          let oldDist = thiz.distance(
+            tpCache[point1].clientX,
+            tpCache[point2].clientX,
+            tpCache[point1].clientY,
+            tpCache[point2].clientY
+          );
+
+          // Calculate the difference between the start and move coordinates
+          let newDist = thiz.distance(
+            ev.targetTouches[0].clientX,
+            ev.targetTouches[1].clientX,
+            ev.targetTouches[0].clientY,
+            ev.targetTouches[1].clientY
+          );
+
+          let smaller = false;
+          if (newDist < oldDist) {
+            smaller = true;
+          }
+
+          let rt = newDist / oldDist;
+          let scale = thiz.startScale * rt;
+          if (smaller) {
+            if (scale <= 1) {
+              return;
+            }
+          }
+
+          target.style.transform = `scale(${scale})`;
+        } else {
+          // empty tpCache
+          tpCache = new Array();
+        }
+      }
+
+      _endHandler(ev) {
+        thiz.tpCache = [];
+
+        let target = ev.target;
+        let styleTransform = target.style.transform;
+        if (!styleTransform || styleTransform.length < 6) {
+          return;
+        }
+        var scale = parseFloat(styleTransform.substring(6));
+        if (scale == 1) {
+          thiz.ifRenew = false;
+        } else {
+          thiz.ifRenew = true;
+        }
+      }
+
+      distance(x1, x2, y1, y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+      }
+    }
+
+    customElements.define(ThingsScalableImage.is, ThingsScalableImage);
+  </script>
+</dom-module>

@@ -1,71 +1,67 @@
 <!--
 @license
-Copyright © HatioLab Inc. All rights reserved.
+Copyright © 2015-2021 Shenzhen Weixun All rights reserved.
 -->
 
-<link rel="import" href="../../polymer/polymer-element.html">
-<link rel="import" href="../../paper-button/paper-button.html">
-<link rel="import" href="../things-sys/sys-translator.html">
-<link rel="import" href="../things-sys/sys-ajax.html">
+<link rel="import" href="../../polymer/polymer-element.html" />
+<link rel="import" href="../../paper-button/paper-button.html" />
+<link rel="import" href="../things-sys/sys-translator.html" />
+<link rel="import" href="../things-sys/sys-ajax.html" />
 
 <dom-module id="sys-logout">
-	<template>
-		<sys-translator 
-			resources="[[resources]]" 
-			language="[[language]]" 
-			src="button.logout" 
-			result="{{logout}}">
-		</sys-translator>
+  <template>
+    <sys-translator resources="[[resources]]" language="[[language]]" src="button.logout" result="{{logout}}">
+    </sys-translator>
 
-		<paper-button raised on-tap="_handleLogout">[[logout]]</paper-button>
-		<sys-ajax 
-			curl="[[logoutUrl]]" 
-			method="POST"
-			on-iron-ajax-response="_handleAjaxResponse">
-		</sys-ajax>
-	</template>
-	<script>
-		class SysLogout extends Polymer.Element {
-			static get is() { return 'sys-logout'; }
+    <paper-button raised on-tap="_handleLogout">[[logout]]</paper-button>
+    <sys-ajax curl="[[logoutUrl]]" method="POST" on-iron-ajax-response="_handleAjaxResponse"> </sys-ajax>
+  </template>
+  <script>
+    class SysLogout extends Polymer.Element {
+      static get is() {
+        return "sys-logout";
+      }
 
-			static get properties() {
-				return {
-					logoutUrl: {
-						type: String,
-						value: '/logout'
-					},
+      static get properties() {
+        return {
+          logoutUrl: {
+            type: String,
+            value: "/logout",
+          },
 
-					/**
-					 * signout에 사용될 ajax, iron-ajax
-					 * ***
-					 * @type {Object}
-					 */
-					_signoutAjax: {
-						type: Object,
-						value: {}
-					},
+          /**
+           * signout에 사용될 ajax, iron-ajax
+           * ***
+           * @type {Object}
+           */
+          _signoutAjax: {
+            type: Object,
+            value: {},
+          },
 
-					user: Object
-				};
-			}
+          user: Object,
+        };
+      }
 
-			_handleLogout(e) {
-				this.shadowRoot.querySelector('sys-ajax').generateRequest();
-			}
+      _handleLogout(e) {
+        this.shadowRoot.querySelector("sys-ajax").generateRequest();
+      }
 
-			_handleAjaxResponse(e) {
-				this.user = null;
+      _handleAjaxResponse(e) {
+        this.user = null;
 
-				this.dispatchEvent(new CustomEvent('log-out', {
-					bubbles: true,
-					composed: true,
-					detail: true
-				}));
+        this.dispatchEvent(
+          new CustomEvent("log-out", {
+            bubbles: true,
+            composed: true,
+            detail: true,
+          })
+        );
 
-				window.location.hash = "/login";
-			}
-		}
-		
-		window.customElements.define(SysLogout.is, SysLogout);
-	</script>
+        window.location.hash = "/login";
+      }
+    }
+
+    window.customElements.define(SysLogout.is, SysLogout);
+  </script>
 </dom-module>
